@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        //Saqib test
         try {
             DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
             Device_Width = metrics.widthPixels;
