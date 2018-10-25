@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/profileLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
@@ -13,6 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/google_1x"
             android:orientation="vertical">
 
 
@@ -22,7 +24,7 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:src="@drawable/dummy_image"
+                android:src="@color/black"
                 app:civ_border_color="@color/colorPrimaryDark"
                 app:civ_border_width="2dp" />
 
@@ -43,7 +45,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="@string/FirstName"
-
+                        android:text="Umair"
                         android:inputType="text" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -59,6 +61,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/LastName"
+                        android:text="Khan"
                         android:inputType="text" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -71,17 +74,21 @@
                 android:orientation="horizontal">
 
 
-                <com.hbb20.CountryCodePicker
-                    android:id="@+id/ccp_getFullNumber"
+                <android.support.design.widget.TextInputLayout
+
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.5"
-                    android:gravity="fill_horizontal|center"
-                    app:ccp_autoDetectCountry="true"
-                    app:ccp_autoFormatNumber="false"
-                    app:ccp_contentColor="#000"
-                    app:ccp_showPhoneCode="false"
-                    app:ccp_hintExampleNumber="false" />
+                    android:layout_height="wrap_content"
+                    app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                    android:layout_weight="0.5">
+
+                    <EditText
+                        android:id="@+id/et_country"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/Country"
+                        android:text="@string/saudia"
+                        android:inputType="text" />
+                </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
 
@@ -95,6 +102,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/Mobile"
+                        android:text="+923002013621"
                         android:inputType="number" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -117,7 +125,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="@string/email"
-
+                        android:text="ktrading.9430@gmail.coms"
                         android:inputType="textEmailAddress|number" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -140,7 +148,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:inputType="textPassword"
-                        android:hint="@string/password" />
+                        android:hint="@string/password"
+                        android:text="454515"/>
                 </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
@@ -154,6 +163,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/confirm_pass"
+                        android:text="asdawd"
                         android:inputType="textPassword" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -175,6 +185,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="@string/gender"
+                        android:text="Male"
                         android:inputType="textFilter" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -196,6 +207,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="@string/address"
+                        android:text="Riyadh"
                         android:inputType="text" />
                 </android.support.design.widget.TextInputLayout>
 

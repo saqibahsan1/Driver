@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/ToolbarTheme">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                app:titleTextColor="@color/colorAccent"
+                app:popupTheme="@style/ToolbarTheme"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary">
+
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/colorAccent"
+                    android:text="@string/title"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/google_1x"
+        android:layout_marginTop="@dimen/book_border">
+
+        <com.llollox.androidtoggleswitch.widgets.ToggleSwitch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:textToggleLeft="@string/map"
+            app:textToggleRight="@string/new_orders"
+            app:checkedBackgroundColor="@color/colorPrimaryDark"
+            app:checkedTextColor="@color/colorAccent"
+            android:id="@+id/toggleButtons"
+            app:uncheckedTextColor="@android:color/white"
+            app:toggleWidth="122dp"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map_layout">
+
+
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="@dimen/twenty"
+        android:id="@+id/callChatBtns"
+        android:orientation="horizontal">
+
+
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:id="@+id/driverChat"
+            android:textStyle="bold"
+            android:layout_marginStart="@dimen/book_border"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/btn_left_corner"
+            android:paddingStart="@dimen/thirty"
+            android:paddingEnd="@dimen/aar_wave_height"
+            android:drawableStart="@android:drawable/sym_action_chat"
+            android:textColor="@android:color/white"
+            android:text="@string/chat"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/thirty"
+            android:paddingEnd="@dimen/aar_wave_height"
+            android:layout_marginEnd="@dimen/book_border"
+            android:id="@+id/driverCall"
+            android:drawableStart="@android:drawable/sym_call_outgoing"
+            android:background="@drawable/btns_corners"
+            android:textColor="@android:color/white"
+            android:text="@string/call_"/>
+
+    </LinearLayout>
+
+
+</FrameLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/scrollView">
+
+        <LinearLayout
+            android:id="@+id/OrdersLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/MyOrdersLayOut"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/RV_MyOrders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/google_1x">
+
+                </android.support.v7.widget.RecyclerView>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:layout_marginStart="@dimen/twenty"
+                    android:layout_marginEnd="@dimen/book_border"
+                    android:id="@+id/CancelOrder"
+                    android:background="@color/Red"
+                    android:textColor="@android:color/white"
+                    android:text="@string/cancel_order"/>
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:textAlignment="center"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/deliver"
+                    android:textStyle="bold"
+                    android:layout_marginStart="@dimen/book_border"
+                    android:layout_marginEnd="@dimen/twenty"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@android:color/white"
+                    android:text="@string/deliver"/>
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

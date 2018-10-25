@@ -21,7 +21,7 @@
                 android:id="@+id/img_Resturaunt"
                 android:layout_width="80dp"
                 android:layout_height="60dp"
-                android:src="@drawable/dummy_image"
+                android:src="@drawable/place_holder"
                 android:padding="4dp" />
 
             <TextView
@@ -147,7 +147,7 @@
                 android:id="@+id/buttonRemoveItem"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:text="@string/RemoveaddToCart"
+                android:text="@string/done"
                 android:background="@color/colorPrimaryDark"
                 android:textColor="@android:color/white"
                 android:layout_weight="2"

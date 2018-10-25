@@ -8,14 +8,15 @@
 
     <color name="yellow">#edd300</color>
     <color name="background">#1b1b1b</color>
-    <color name="green">#70b473</color>
+    <color name="green">#77C344</color>
 
     <color name="orange">#ec927c</color>
     <color name="list_background">#303030</color>
-    <color name="Red">#992416</color>
+    <color name="Red">#EF5931</color>
     <color name="list_divider">#272727</color>
-    <color name="counter_text_bg">#626262</color>
+    <color name="counter_text_bg">#c2b5b5</color>
     <color name="counter_text_color">#c5c4c4</color>
     <color name="colorPrimaryLightA">#1d6fac</color>
+    <color name="text_color_link">@color/colorPrimary</color>
 
 </resources>

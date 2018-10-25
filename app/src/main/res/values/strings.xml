@@ -1,14 +1,15 @@
 <resources>
-    <string name="app_name">Akhdmny</string>
+    <string name="app_name">"Akhdmny Driver"</string>
 
     <string name="underline"> <u>Forgot Password?</u></string>
     <string name="skip"> <u>Skip Login</u></string>
     <string name="Register"> <u>Register</u></string>
     <string name="Resend"> <u>Resend</u></string>
-    <string name="msg"> <u>Type here...</u></string>
+    <string name="msg"> <u>Write here...</u></string>
     <string name="Enter_code_Text"> Please enter the verification code</string>
     <string name="login_Text">LOGIN TO YOUR ACCOUNT</string>
     <string name="success">Your Complain has been added</string>
+    <string name="successBid">Success! Waiting for the customer… </string>
     <string name="successParcel">Your Parcel request has been added</string>
     <string name="success_CartItem">Item has been added to the cart</string>
     <string name="error_text">Please enter a message</string>
@@ -18,6 +19,7 @@
     <string name="Loading">Adding your Complaint…</string>
     <string name="FirstName">First Name</string>
     <string name="call">Call Driver</string>
+    <string name="call_">Call</string>
     <string name="chat">Chat</string>
     <string name="cancel">Order Cancel</string>
     <string name="LastName">Last Name</string>
@@ -30,6 +32,12 @@
     <string name="gender">Gender</string>
     <string name="address">Address</string>
     <string name="saveBtn">Save</string>
+    <string name="online">Be Available</string>
+    <string name="available">Available</string>
+    <string name="Bz">Be Busy</string>
+    <string name="busy">Busy</string>
+    <string name="bid">Bid here…</string>
+    <string name="status">Status :</string>
     <string name="Mobile">Mobile</string>
     <string name="close">Close Navigation</string>
     <string name="Btn_MyLoc">My Location</string>
@@ -43,6 +51,7 @@
     <string name="listen">Listen</string>
     <string name="record">Record</string>
     <string name="remove">Remove</string>
+    <string name="total_amount">Total Amount</string>
     <string name="action_copy">Copy</string>
     <string name="copied_message">Message copied!</string>
     <string name="remove_item">Item has been removed successfully</string>
@@ -56,19 +65,34 @@
     <string name="Message">Enter message…</string>
     <string name="amount">0.0</string>
     <string name="btnSend">Send</string>
+    <string name="done">Done</string>
     <string name="title">Title</string>
+    <string name="saudia">Saudi Arabia</string>
     <string name="notification">No Notifications at this moment</string>
+    <string name="notifications">Notifications</string>
     <string name="Complaint">New</string>
+    <string name="map">Map</string>
+    <string name="new_orders">New Orders</string>
+    <string name="driver_orders">Deliver Orders</string>
     <string name="history">History</string>
     <string name="Home">Home</string>
     <string name="settings">Settings</string>
     <string name="complaint">Complaint</string>
     <string name="lang">Language</string>
     <string name="order">Orders</string>
+    <string name="order_req">Order Request</string>
     <string name="contact">Contact Us</string>
     <string name="Cancel">Cancel</string>
+    <string name="cancel_order">Cancel Order</string>
     <string name="rate">Rate Our App</string>
     <string name="langType">English</string>
     <string name="logout">Logout</string>
+    <string name="profile">Profile</string>
+    <string name="login">Login</string>
+    <string name="accept_o">Accept order</string>قبول الطلب
+    <string name="ebill">E-Bill</string>
+    <string name="Orders">Orders</string>
+    <string name="deliver">Deliver Order</string>
+    <string name="new_msg">New message…</string>
 
 </resources>

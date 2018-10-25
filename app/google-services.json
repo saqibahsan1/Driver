@@ -8,6 +8,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:423653261264:android:667f5aaa629249a4",
+        "android_client_info": {
+          "package_name": "com.akhdmny.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423653261264-mu1m7ed7kete2rg00qeor0rugs9v55kq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.akhdmny.driver",
+            "certificate_hash": "95f9988e68dc0f0ec7c68e89f765c4312a53a33d"
+          }
+        },
+        {
+          "client_id": "423653261264-j39fvfvmc3pkoq2jafnpdsrg2kaspis5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfRqSJ5oyXmvRoyEJLTrbEBbIOtDxgyOc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423653261264-j39fvfvmc3pkoq2jafnpdsrg2kaspis5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "423653261264-3919hbd1sog3jjss257e2rquqhnag029.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zotionapps.AkhdmnyDriver"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:423653261264:android:8df2043bd2620d5d",
         "android_client_info": {
           "package_name": "com.android.akhdmny"
@@ -44,10 +95,10 @@
               "client_type": 3
             },
             {
-              "client_id": "423653261264-61ptm99ue4j04c5b518s90lqob39an86.apps.googleusercontent.com",
+              "client_id": "423653261264-3919hbd1sog3jjss257e2rquqhnag029.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.zotionapps.Akhdmny"
+                "bundle_id": "com.zotionapps.AkhdmnyDriver"
               }
             }
           ]

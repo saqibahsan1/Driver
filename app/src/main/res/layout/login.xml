@@ -11,6 +11,18 @@
         android:id="@+id/imageView2"
         android:src="@color/colorPrimaryDark"
         android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:text="@string/login_Text"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/activity_vertical_margin" />
+
     <com.victor.loading.rotate.RotateLoading
         android:id="@+id/rotateloading"
         android:layout_width="80dp"
@@ -22,11 +34,11 @@
 
     <ImageView
         android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_height="130dp"
         android:id="@+id/imageView3"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/main_logo"
+        android:src="@drawable/logo_blue"
         android:padding="20dp"
         android:layout_marginTop="10dp" />
 
@@ -34,6 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/scrollView"
+        android:layout_marginTop="@dimen/thirty"
         android:layout_below="@+id/imageView3"
         android:padding="@dimen/scroll_padding">
 
@@ -67,8 +80,7 @@
                     android:background="@color/transparent"
                     android:layout_gravity="center_vertical"
                     android:inputType="number|textPhonetic"
-                    android:hint="Mobile"
-                    android:text="+923313648573"
+                    android:hint="@string/Mobile"
                     android:textColor="@android:color/white"
                     android:textColorHint="@android:color/white"
                     style="@android:style/TextAppearance.Medium" />
@@ -97,8 +109,7 @@
                     android:layout_weight="1"
                     android:background="@color/transparent"
                     android:layout_gravity="center_vertical"
-                    android:hint="Password"
-                    android:text="123456"
+                    android:hint="@string/password"
                     android:textColor="@android:color/white"
                     android:textColorHint="@android:color/white"
                     android:inputType="textPassword" />
@@ -165,7 +176,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Login"
+                    android:text="@string/login"
                     android:background="@color/colorAccent"
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark" />
@@ -183,7 +194,7 @@
                 <Button
                     style="@android:style/TextAppearance.Medium"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
                     android:text="@string/underline"
                     android:id="@+id/btn_forgot_password"
                     android:gravity="center"
@@ -191,63 +202,53 @@
                     android:textAllCaps="false"
                     android:background="@color/transparent" />
             </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
-            android:layout_marginLeft="@dimen/login_button_spacing"
-            android:layout_marginRight="@dimen/login_button_spacing"
-            >
-            <Button
-                android:id="@+id/btn_register"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="@dimen/login_button_spacing"
+                android:layout_marginRight="@dimen/login_button_spacing"
+                >
+                <Button
+                    android:id="@+id/btn_register"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
 
-                android:text="@string/Register"
-                style="@android:style/TextAppearance.Medium"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:textColor="@color/colorAccent"
-                android:textAllCaps="false"
-                android:background="@color/transparent"/>
+                    android:text="@string/Register"
+                    style="@android:style/TextAppearance.Medium"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:textColor="@color/colorAccent"
+                    android:textAllCaps="false"
+                    android:background="@color/transparent"/>
 
-        </LinearLayout>
-        <LinearLayout
+            </LinearLayout>
+            <LinearLayout
 
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <Button
-                android:id="@+id/btn_skip"
-                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                >
 
-                android:text="@string/skip"
-                style="@android:style/TextAppearance.Medium"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:textColor="@color/colorAccent"
-                android:textAllCaps="false"
-                android:background="@color/transparent"/>
-        </LinearLayout>
+                <Button
+                    android:id="@+id/btn_skip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:text="@string/skip"
+                    style="@android:style/TextAppearance.Medium"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:textColor="@color/colorAccent"
+                    android:textAllCaps="false"
+                    android:background="@color/transparent"/>
+            </LinearLayout>
 
 
 
         </LinearLayout>
     </ScrollView>
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageView3"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/colorAccent"
-        android:textSize="@dimen/activity_vertical_margin"
-        android:text="@string/login_Text" />
 
 
 </RelativeLayout>

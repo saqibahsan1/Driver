@@ -8,6 +8,66 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:orientation="horizontal"
+        android:id="@+id/topBar"
+        android:background="@color/colorPrimaryDark">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/statusColorImg"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="@dimen/book_border"
+            app:civ_border_color="@color/colorPrimaryDark"
+            app:civ_border_width="2dp" />
+
+
+        <TextView
+            android:id="@+id/titleTopBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:text="@string/status"
+            android:textColor="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/titleBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:text="@string/Cancel"
+            android:textColor="@color/colorAccent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonStatus"
+            android:layout_width="120dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="@dimen/book_border"
+            android:layout_marginRight="@dimen/google_1x"
+            android:layout_marginLeft="@dimen/google_1x"
+            android:layout_marginBottom="@dimen/google_1x"
+            android:textColor="@color/white"
+            android:background="@color/green"
+            android:layout_alignParentRight="true"
+            android:text="@string/online" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
@@ -19,6 +79,6 @@
 
     </LinearLayout>
 
-    <include layout="@layout/driver_details"/>
+
 
 </LinearLayout>

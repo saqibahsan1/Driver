@@ -3,13 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".Splash.Splash_screen">
 
     <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
         android:id="@+id/SplashBg"
-        android:src="@drawable/splash_bg"
-        android:scaleType="fitXY" />
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="87dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/logo_blue" />
 
 </RelativeLayout>

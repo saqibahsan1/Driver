@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    style="@style/WidgetTextMessage.Left">
+
+
+
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/msg_image_avatar_left"
+        android:visibility="gone"
+        style="@style/AvatarImageViewStyle.Left" />
+
+    <LinearLayout
+        android:id="@+id/chat_linear_layout"
+        style="@style/BubbleTextFrame.Right">
+
+        <LinearLayout
+            android:id="@+id/msg_linear_list_item_right"
+            style="@style/LinearWidgetTextMsg.Right">
+
+            <!--LinearLayout should place its actual message widget here.-->
+            <LinearLayout
+                android:id="@+id/msg_custom_widget_frame_top"
+                style="@style/CustomWidgetFrame.Right" />
+
+            <TextView
+                android:id="@+id/fetch_chat_sender"
+                android:visibility="gone"
+                style="@style/TextViewTimeMsg.Right"
+
+                android:text="DEMO"
+                android:textColor="@color/colorAccent"
+                />
+
+            <TextView
+                android:id="@+id/fetch_chat_messgae"
+                style="@style/TextViewTextMsg.Right"
+                android:text="DEMO"
+
+                />
+
+            <ImageView
+                android:id="@+id/chat_uploaded_image_incoming"
+                style="@style/ImageViewAttach.Right"
+                android:layout_marginBottom="10dp"
+
+                android:src="@android:drawable/ic_menu_camera"
+
+                android:layout_marginStart="22dp" />
+            <ImageView
+                android:id="@+id/chat_uploaded_image_outgoing"
+                style="@style/ImageViewAttach.Left"
+                android:layout_marginBottom="10dp"
+
+
+                android:src="@android:drawable/ic_menu_camera"
+                android:visibility="visible" />
+
+
+            <TextView
+                android:id="@+id/timeChat"
+                style="@style/TextViewTimeMsg.Right"
+                android:text="Date"
+                android:textColor="@color/colorAccent"
+               />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/msg_image_avatar_right"
+        style="@style/AvatarImageViewStyle.Right" />
+
+</LinearLayout>

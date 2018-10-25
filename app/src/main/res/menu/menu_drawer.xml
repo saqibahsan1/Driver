@@ -4,31 +4,31 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/home"
-            android:title="Home"
+            android:title="@string/Home"
             android:icon="@drawable/home"/>
         <item
             android:id="@+id/orders"
-            android:title="My orders"
+            android:title="@string/new_orders"
             android:icon="@drawable/orders_icon"/>
 
         <item
             android:id="@+id/complaints"
-            android:title="Complaints"
+            android:title="@string/complaint"
             android:icon="@drawable/wallet_icon"/>
 
         <item
             android:id="@+id/notifications"
-            android:title="Notifications"
+            android:title="@string/notifications"
             android:icon="@drawable/notification_icon"/>
 
         <item
             android:id="@+id/settings"
-            android:title="Settings"
+            android:title="@string/settings"
             android:icon="@drawable/settings"/>
 
         <item
             android:id="@+id/contact"
-            android:title="Contact Us"
+            android:title="@string/contact"
             android:icon="@drawable/contact_icon"/>
 
     </group>

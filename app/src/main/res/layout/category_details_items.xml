@@ -18,15 +18,15 @@
                 android:id="@+id/imgResturaunt"
                 android:layout_width="80dp"
                 android:layout_height="60dp"
-                android:src="@drawable/dummy_image"
+                android:src="@drawable/place_holder"
                 android:padding="4dp" />
 
             <TextView
                 android:id="@+id/textViewTitle"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/imgResturaunt"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@id/imgResturaunt"
                 android:text="Title"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
                 android:textColor="#000000" />
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textViewTitle"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_marginTop="10dp"
                 android:layout_toRightOf="@id/imgResturaunt"
                 android:text="Address"
