@@ -7,9 +7,18 @@ import com.google.gson.annotations.SerializedName;
 
 public class OrderDetails {
 
+    @SerializedName("currency")
+    @Expose
+    private String currency;
     @SerializedName("cartItems")
     @Expose
     private List<CartItem> cartItems = null;
+    @SerializedName("order_id")
+    @Expose
+    private Integer orderId;
+    @SerializedName("tip")
+    @Expose
+    private Integer tip;
     @SerializedName("amount")
     @Expose
     private Double amount;
@@ -18,10 +27,24 @@ public class OrderDetails {
     private Integer discountPercent;
     @SerializedName("discount_amount")
     @Expose
-    private Double discountAmount;
+    private Integer discountAmount;
     @SerializedName("final_amount")
     @Expose
     private Double finalAmount;
+    @SerializedName("lat")
+    @Expose
+    private Double lat;
+    @SerializedName("long")
+    @Expose
+    private Double _long;
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 
     public List<CartItem> getCartItems() {
         return cartItems;
@@ -29,6 +52,22 @@ public class OrderDetails {
 
     public void setCartItems(List<CartItem> cartItems) {
         this.cartItems = cartItems;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+    public Integer getTip() {
+        return tip;
+    }
+
+    public void setTip(Integer tip) {
+        this.tip = tip;
     }
 
     public Double getAmount() {
@@ -47,11 +86,11 @@ public class OrderDetails {
         this.discountPercent = discountPercent;
     }
 
-    public Double getDiscountAmount() {
+    public Integer getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(Double discountAmount) {
+    public void setDiscountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
     }
 
@@ -61,6 +100,22 @@ public class OrderDetails {
 
     public void setFinalAmount(Double finalAmount) {
         this.finalAmount = finalAmount;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLong() {
+        return _long;
+    }
+
+    public void setLong(Double _long) {
+        this._long = _long;
     }
 
 }

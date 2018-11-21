@@ -25,6 +25,8 @@ import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
 import com.google.gson.Gson;
 
+import java.util.Arrays;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -43,6 +45,8 @@ public class FragmentSettings extends Fragment {
     @BindView(R.id.tv_email)
     TextView tv_email;
 
+    @BindView(R.id.langType)
+    TextView langType;
 
 
     @BindView(R.id.logoutLayout)
@@ -93,8 +97,27 @@ public class FragmentSettings extends Fragment {
         Lang_Laoyout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocaleHelper.languageSwitcher.showChangeLanguageDialog((FragmentActivity) getActivity());
+//                LocaleHelper.languageSwitcher.showChangeLanguageDialog((FragmentActivity) getActivity());
+                String lang = LocaleHelper.getInstance().getLanguage();
+                if (lang == null || lang.equals("")){
+                    lang = "en";
+                }
+                int index = Arrays.asList(getResources().getStringArray(R.array.languages_short)).indexOf(lang);
+                new android.app.AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.dialog_language_title_select_language)
+                        .setSingleChoiceItems(R.array.languages, index, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String lang = getResources().getStringArray(R.array.languages_short)[which];
+                                LocaleHelper.getInstance().setLanguage(lang);
+                                langType.setText(lang.toUpperCase());
+                                dialog.dismiss();
 
+                                getActivity().recreate();
+
+                            }
+                        })
+                        .show();
             }
         });
 

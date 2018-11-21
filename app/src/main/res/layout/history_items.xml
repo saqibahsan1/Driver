@@ -9,24 +9,19 @@
         android:layout_height="wrap_content"
         android:layout_margin="1dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:padding="8dp">
 
             <TextView
                 android:id="@+id/titleHistory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/textViewTitle"
                 android:layout_marginLeft="5dp"
-                android:layout_weight="1"
-                android:layout_toRightOf="@id/imgResturaunt"
+                android:layout_marginTop="5dp"
                 android:text="@string/title"
                 android:textColor="#000000"
-
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small.Inverse"
                 android:textStyle="bold" />
 
             <TextView
@@ -34,15 +29,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
                 android:text="time"
-                android:layout_weight="0.5"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                 android:textStyle="normal"
-                android:layout_alignRight="@+id/titleHistory"
-                android:layout_alignParentRight="true" />
+                android:layout_alignEnd="@+id/titleHistory"/>
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 

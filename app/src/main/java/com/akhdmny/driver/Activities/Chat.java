@@ -232,9 +232,7 @@ Uri mImageUri = Uri.EMPTY;
                     StorageReference filePath = FirebaseStorage.getInstance().getReference().child("Chat_Images").child(imageUri.getLastPathSegment());
                      Log.d("LOGGED", "ImageURI : " +mImageUri);
 
-
-//            mProgressDialog.setBody("Uploading...");
-//            mProgressDialog.show();
+                    NetworkConsume.getInstance().ShowProgress(Chat.this);
 
             filePath.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -258,7 +256,7 @@ Uri mImageUri = Uri.EMPTY;
                     map.put("type", "1");
                     myRef.push().setValue(map);
                     myRef2.push().setValue(map);
-                  //  mProgressDialog.dismiss();
+                    NetworkConsume.getInstance().HideProgress();
                 }
             });
 
@@ -348,6 +346,7 @@ Uri mImageUri = Uri.EMPTY;
                 {
                     //Log.d("LOGGED", "Data SnapShot : " +dataSnapshot.toString());
                    // progressBar.setVisibility(ProgressBar.GONE);
+                    NetworkConsume.getInstance().HideProgress();
                     recyclerView.setVisibility(View.VISIBLE);
                     no_data_available_image.setVisibility(View.GONE);
                     no_chat.setVisibility(View.GONE);
@@ -375,7 +374,7 @@ Uri mImageUri = Uri.EMPTY;
                 }
                 else {
                     //Log.d("LOGGED", "NO Data SnapShot : " +dataSnapshot.toString());
-                  //  progressBar.setVisibility(ProgressBar.GONE);
+                    NetworkConsume.getInstance().HideProgress();
                     recyclerView.setVisibility(View.VISIBLE);
                     no_data_available_image.setVisibility(View.GONE);
                     no_chat.setVisibility(View.GONE);

@@ -21,9 +21,14 @@ import com.akhdmny.driver.NetworkManager.Network;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
 import com.akhdmny.driver.Utils.UserDetails;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,30 +53,11 @@ public class FCM_service extends FirebaseMessagingService {
         if ( id != 0){
             UpdateToken(id,s);
         }
-
-
     }
     private void UpdateToken(int id,String token){
-
-        Network.getInstance().getAuthAPINew().Token(id,token).enqueue(new Callback<UpdateTokenResponse>() {
-            @Override
-            public void onResponse(Call<UpdateTokenResponse> call, Response<UpdateTokenResponse> response) {
-                UpdateTokenResponse updateTokenResponse = response.body();
-                if (response.isSuccessful()){
-                    //  Toast.makeText(FCM_service.this, updateTokenResponse.getResponse().getToken(), Toast.LENGTH_SHORT).show();
-
-                }else {
-                    Gson gson = new Gson();
-                    LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
-                    Toast.makeText(FCM_service.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UpdateTokenResponse> call, Throwable t) {
-                Toast.makeText(FCM_service.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        final String path = "Token/" + id;
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+        ref.child("token").setValue(token);
     }
     private void sendNotification(String messageBody) {
         Intent intent = new Intent(this, FCM_service.class);

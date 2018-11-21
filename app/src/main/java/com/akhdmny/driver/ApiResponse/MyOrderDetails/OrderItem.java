@@ -1,11 +1,10 @@
 
-package com.akhdmny.driver.ApiResponse.OrdersResponse;
+package com.akhdmny.driver.ApiResponse.MyOrderDetails;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class CartItem {
+public class OrderItem {
 
     @SerializedName("id")
     @Expose
@@ -36,10 +35,10 @@ public class CartItem {
     private Object document;
     @SerializedName("image")
     @Expose
-    private String image;
+    private Object image;
     @SerializedName("voice")
     @Expose
-    private String voice;
+    private Object voice;
     @SerializedName("category_id")
     @Expose
     private Object categoryId;
@@ -49,10 +48,10 @@ public class CartItem {
     @SerializedName("to_long")
     @Expose
     private Double toLong;
-    @SerializedName("lat")
+    @SerializedName("from_lat")
     @Expose
     private Double fromLat;
-    @SerializedName("long")
+    @SerializedName("from_long")
     @Expose
     private Double fromLong;
     @SerializedName("amount")
@@ -63,7 +62,7 @@ public class CartItem {
     private Double distance;
     @SerializedName("type")
     @Expose
-    private Object type;
+    private String type;
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
@@ -73,9 +72,6 @@ public class CartItem {
     @SerializedName("deleted_at")
     @Expose
     private Object deletedAt;
-    @SerializedName("images")
-    @Expose
-    private List<String> images = null;
 
     public Integer getId() {
         return id;
@@ -149,19 +145,19 @@ public class CartItem {
         this.document = document;
     }
 
-    public String getImage() {
+    public Object getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(Object image) {
         this.image = image;
     }
 
-    public String getVoice() {
+    public Object getVoice() {
         return voice;
     }
 
-    public void setVoice(String voice) {
+    public void setVoice(Object voice) {
         this.voice = voice;
     }
 
@@ -221,11 +217,11 @@ public class CartItem {
         this.distance = distance;
     }
 
-    public Object getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Object type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -251,14 +247,6 @@ public class CartItem {
 
     public void setDeletedAt(Object deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
     }
 
 }

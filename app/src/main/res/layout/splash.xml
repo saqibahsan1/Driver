@@ -3,17 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/splash_image"
     tools:context=".Splash.Splash_screen">
 
-    <ImageView
-        android:id="@+id/SplashBg"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="87dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/logo_blue" />
+    <!--<ImageView-->
+        <!--android:id="@+id/SplashBg"-->
+        <!--android:layout_width="150dp"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="87dp"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:src="@drawable/logo_blue" />-->
 
 </RelativeLayout>

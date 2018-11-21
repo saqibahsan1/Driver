@@ -6,6 +6,10 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class OrderDetails {
+
+    @SerializedName("currency")
+    @Expose
+    private String currency;
     @SerializedName("cartItems")
     @Expose
     private List<CartItem> cartItems = null;
@@ -17,10 +21,42 @@ public class OrderDetails {
     private Integer discountPercent;
     @SerializedName("discount_amount")
     @Expose
-    private Double discountAmount;
+    private Integer discountAmount;
     @SerializedName("final_amount")
     @Expose
     private Double finalAmount;
+
+    public Double getToLat() {
+        return toLat;
+    }
+
+    public void setToLat(Double toLat) {
+        this.toLat = toLat;
+    }
+
+    public Double getToLong() {
+        return toLong;
+    }
+
+    public void setToLong(Double toLong) {
+        this.toLong = toLong;
+    }
+
+    @SerializedName("lat")
+    @Expose
+    private Double toLat;
+    @SerializedName("long")
+    @Expose
+    private Double toLong;
+
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 
     public List<CartItem> getCartItems() {
         return cartItems;
@@ -46,11 +82,11 @@ public class OrderDetails {
         this.discountPercent = discountPercent;
     }
 
-    public Double getDiscountAmount() {
+    public Integer getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(Double discountAmount) {
+    public void setDiscountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
     }
 
@@ -61,4 +97,5 @@ public class OrderDetails {
     public void setFinalAmount(Double finalAmount) {
         this.finalAmount = finalAmount;
     }
+
 }

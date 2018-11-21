@@ -45,6 +45,9 @@ public class UserInfo {
     @SerializedName("long")
     @Expose
     private Double _long;
+    @SerializedName("status")
+    @Expose
+    private Integer status;
 
     public Integer getId() {
         return id;
@@ -148,6 +151,14 @@ public class UserInfo {
 
     public void setLong(Double _long) {
         this._long = _long;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
 }

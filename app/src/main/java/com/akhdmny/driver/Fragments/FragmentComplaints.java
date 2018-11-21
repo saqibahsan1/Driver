@@ -35,6 +35,7 @@ import com.akhdmny.driver.Adapter.ImagesAdapter;
 import com.akhdmny.driver.ApiResponse.AddComplaintResponse;
 import com.akhdmny.driver.ApiResponse.ComplaintHistoryInsideResponse;
 import com.akhdmny.driver.ApiResponse.ComplaintHistoryResponse;
+import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
@@ -73,8 +74,8 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class FragmentComplaints extends Fragment implements MediaPlayer.OnCompletionListener {
     public static final int RequestPermissionCode = 0;
-    private static final String AUDIO_FILE_PATH =
-            Environment.getExternalStorageDirectory().getPath() + "/recorded_audio.wav";
+    private static String AUDIO_FILE_PATH =
+            "";
 
     MediaPlayer mediaPlayer;
 
@@ -334,7 +335,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                         if (item.getTitle().equals("Record")){
                             if(checkPermission()) {
                                 trigger = true;
-
+                                AUDIO_FILE_PATH = Environment.getExternalStorageDirectory().getPath() + "/recorded_audio.wav";
                                 AndroidAudioRecorder.with(getActivity())
                                         // Required
                                         .setFilePath(AUDIO_FILE_PATH)
@@ -380,6 +381,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
         mHandler.postDelayed(mRunnable,50);
     }
     private void apiHistory(){
+        NetworkConsume.getInstance().ShowProgress(getActivity());
         NetworkConsume.getInstance().setAccessKey(prefs.getString("access_token","12"));
         NetworkConsume.getInstance().getAuthAPI().History().enqueue(new Callback<ComplaintHistoryResponse>() {
             @Override
@@ -395,8 +397,10 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
 
                         HistoryAdapter myAdapter = new HistoryAdapter(getActivity(), list);
                         RV_historyList.setAdapter(myAdapter);
+                        NetworkConsume.getInstance().HideProgress();
                     }else {
                         try {
+                            NetworkConsume.getInstance().HideProgress();
                             NetworkConsume.getInstance().SnackBarErrorHistory(historyLayout,getActivity(),"No History was found");
                         }catch (Exception e){
 
@@ -405,7 +409,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
 
 
                 }else {
-
+                    NetworkConsume.getInstance().HideProgress();
                     Gson gson = new Gson();
                     LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                     Toast.makeText(getActivity(), message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
@@ -414,7 +418,8 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
 
             @Override
             public void onFailure(Call<ComplaintHistoryResponse> call, Throwable t) {
-               // dialog.hide();
+                NetworkConsume.getInstance().HideProgress();
+
             }
         });
     }
@@ -554,10 +559,16 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
         stopPlaying();
     }
     private void addDataTOApi(){
-        dialog.show();
+        MultipartBody.Part voicePart = null;
+        NetworkConsume.getInstance().ShowProgress(getActivity());
         File AudioFile = new File(AUDIO_FILE_PATH);
-        RequestBody propertyImage = RequestBody.create(MediaType.parse("audio/*"), AudioFile);
-        MultipartBody.Part voicePart = MultipartBody.Part.createFormData("voice", AudioFile.getName(), propertyImage);
+        if (AudioFile.length() ==0){
+
+
+        }else {
+            RequestBody propertyImage = RequestBody.create(MediaType.parse("audio/*"), AudioFile);
+            voicePart = MultipartBody.Part.createFormData("voice", AudioFile.getName(), propertyImage);
+        }
 
         MultipartBody.Part[] ImagesParts = new MultipartBody.Part[photos.size()];
         for (int i = 0; i<photos.size();i++) {
@@ -573,7 +584,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                     .validate(et_textMessage.getText().toString(), et_textMessage, 3);
 
             if (validator.fails()) {
-                dialog.dismiss();
+                NetworkConsume.getInstance().HideProgress();
                 return;
             }
 
@@ -605,24 +616,34 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                         getCapturedImage.setVisibility(View.GONE);
 
                     }catch (Exception e){
-
+                        NetworkConsume.getInstance().HideProgress();
                     }
-                        dialog.dismiss();
+                        NetworkConsume.getInstance().HideProgress();
                     }else {
 
                         Gson gson = new Gson();
                         LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                         NetworkConsume.getInstance().SnackBarErrorHistory(ComplaintLayout,getActivity(),message.getError().getMessage().get(0));
+                        if (message.getError().getMessage().get(0).equals("Unauthorized access_token")){
+                            Intent intent = new Intent(getActivity(), login.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            SharedPreferences prefs = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+                            prefs.edit().putString("access_token", "")
+                                    .putString("avatar","")
+                                    .putString("login","").commit();
 
+                            startActivity(intent);
+
+                        }
                        // Toast.makeText(getActivity(), message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
+                        NetworkConsume.getInstance().HideProgress();
                     }
 
                 }
 
                 @Override
                 public void onFailure(Call<AddComplaintResponse> call, Throwable t) {
-                    dialog.dismiss();
+                    NetworkConsume.getInstance().HideProgress();
                     Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
 
                 }

@@ -94,5 +94,27 @@
     <string name="Orders">Orders</string>
     <string name="deliver">Deliver Order</string>
     <string name="new_msg">New message…</string>
+    <string name="rating">Rating:</string>
+    <string name="date">Date:</string>
+    <string name="orderNum">Order Number:</string>
+    <string name="rating3">3.0</string>
+    <string name="tip">Tip</string>
+    <string name="final_amount">Final Amount</string>
+    <string name="order_details">Order Details</string>
+    <string name="order_info">Order Information</string>
+    <string name="order_type">Order Type</string>
+    <string name="category">Category</string>
+    <string name="total_dis">Total Distance</string>
+    <string name="client">Client Review</string>
+    <string name="client_rate">Client Rate</string>
+    <string name="price">Price</string>
+    <string name="menu_english">English</string>
+    <string name="menu_arabic">Arabic</string>
+    <string name="dialog_language_title_select_language">Select language</string>
+
+    <string name="total_price">Total Price</string>
+    <string name="deliverd">Delivered</string>
+    <string name="pending">Pending</string>
+    <string name="my_orders">My Orders</string>
 
 </resources>

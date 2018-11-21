@@ -62,6 +62,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/field_height"
                 android:background="@drawable/rounded_corner"
+                android:layout_marginBottom="@dimen/field_spacing" >
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:src="@drawable/country"
+                    android:scaleType="fitCenter"
+                    android:padding="@dimen/icon_padding"
+                    android:layout_gravity="center_vertical" />
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/ccp_getFullNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:ccp_hintExampleNumber="false"
+                    app:ccp_autoFormatNumber="false"
+                    app:ccp_contentColor="#fff"
+                    app:ccp_autoDetectCountry="true"/>
+
+                <EditText
+                    style="@android:style/TextAppearance.Medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/et_country"
+                    android:layout_weight="1"
+                    android:background="@color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:hint="Country"
+                    android:visibility="gone"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/white"
+                    android:inputType="text" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/field_height"
+                android:background="@drawable/rounded_corner"
                 android:layout_marginBottom="@dimen/field_spacing">
 
                 <ImageView
@@ -117,6 +157,7 @@
                     android:layout_width="@dimen/icon_size"
                     android:layout_height="@dimen/icon_size"
                     android:src="@drawable/eye"
+                    android:id="@+id/eye_icon"
                     android:scaleType="fitCenter"
                     android:padding="@dimen/icon_padding"
                     android:layout_gravity="center_vertical" />
@@ -208,6 +249,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:layout_marginLeft="@dimen/login_button_spacing"
+                android:visibility="gone"
                 android:layout_marginRight="@dimen/login_button_spacing"
                 >
                 <Button
@@ -229,6 +271,7 @@
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 >
 
                 <Button

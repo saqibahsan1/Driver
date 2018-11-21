@@ -1,6 +1,7 @@
 package com.akhdmny.driver.NetworkManager;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -30,7 +31,7 @@ public class NetworkConsume {
 
     private static final String API_ENDPOINT = "http://148.251.72.170:8080/";
     private String _accessToken = null;
-
+    private ProgressDialog progressDialog = null;
     private Retrofit _retrofit;
     private Retrofit.Builder _retrofitBuilder = null;
     private HttpLoggingInterceptor _interceptor;
@@ -75,6 +76,24 @@ public class NetworkConsume {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(_client.build())
                 .build();
+    }
+    public void ShowDialogeY(Context context){
+
+        progressDialog = new ProgressDialog(context,R.style.TransparentTheme);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.custom_progressdialog);
+        progressDialog.setCancelable(false);
+    }
+
+    public void ShowProgress(Context context){
+        ShowDialogeY(context);
+        progressDialog.show();
+    }
+    public void HideProgress(){
+//        ShowDialogeN(context);
+        progressDialog.hide();
+        progressDialog.dismiss();
     }
     public static final NetworkConsume getInstance() {
         return SingletonHolder._instance;
@@ -140,6 +159,8 @@ public class NetworkConsume {
         snackbar.show();
 
     }
+
+
     public void SnackBarErrorHistory(LinearLayout layout,Context context,String Message){
         Snackbar snackbar = Snackbar.make(layout, Message, Snackbar.LENGTH_LONG);
         View snackbarLayout = snackbar.getView();

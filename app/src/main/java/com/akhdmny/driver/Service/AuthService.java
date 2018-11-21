@@ -6,6 +6,7 @@ import com.akhdmny.driver.ApiResponse.BidResp.SubmitBidResp;
 import com.akhdmny.driver.ApiResponse.CartOrder;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
 import com.akhdmny.driver.ApiResponse.FourSquare;
+import com.akhdmny.driver.ApiResponse.MyOrderDetails.MyOrders;
 import com.akhdmny.driver.ApiResponse.OrderConfirmation;
 import com.akhdmny.driver.ApiResponse.CategoriesDetailResponse;
 import com.akhdmny.driver.ApiResponse.CategoriesResponse;
@@ -17,6 +18,7 @@ import com.akhdmny.driver.ApiResponse.RegisterResponse;
 import com.akhdmny.driver.ApiResponse.UpdateDriverLoc;
 import com.akhdmny.driver.ApiResponse.UpdateTokenResponse;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
+import com.akhdmny.driver.ApiResponse.cancelOrder.CancelOrderResponse;
 import com.akhdmny.driver.Requests.LoginRequest;
 import com.akhdmny.driver.Requests.ProfileResponse;
 import com.akhdmny.driver.Requests.SignInRequest;
@@ -57,7 +59,7 @@ public interface AuthService {
     Call<CategoriesDetailResponse> CatDetails(@Query("category_id") int id, @Query("lat") double lat,@Query("long") double longitude,
                                               @Query("address") String address);
 
-    @GET("/akhdmny/public/api/driver/problem")
+    @GET("/akhdmny/public/api/driver/get-complains")
     Call<ComplaintHistoryResponse> History();
 
     @GET("/akhdmny/public/api/driver/foursquare")
@@ -67,8 +69,8 @@ public interface AuthService {
     Call<OrderConfirmation> OrderRequest(@Query("lat") double lat,@Query("long") double longitude);
 
     @Multipart
-    @POST("/akhdmny/public/api/driver/problem?lat=24.9070714&long=67.1124509")
-    Call<AddComplaintResponse> AddComplaint(@Part("description") RequestBody description, @Part("title") RequestBody title,
+    @POST("/akhdmny/public//api/user/submit-complain")
+    Call<AddComplaintResponse> AddComplaint(@Part("message") RequestBody description, @Part("title") RequestBody title,
                                             @Part MultipartBody.Part[] Images, @Part MultipartBody.Part Sound);
     @Multipart
     @POST("/akhdmny/public/api/driver/cart/store")
@@ -98,11 +100,17 @@ public interface AuthService {
     @GET("/akhdmny/public/api/driver/get-order-items")
     Call<GetOrderItemsResp> getOrderItems(@Query("order_id") int orderId);
 
+    @GET("/akhdmny/public/api/driver/get-orders")
+    Call<MyOrders> MyOrders();
+
     @GET("/akhdmny/public/api/driver/get-order-detail")
     Call<DriverAwardedResp> getOrderDetails(@Query("order_id") int orderId);
 
     @GET("/akhdmny/public/api/driver/deliver-order")
     Call<DeliverOrderApi> DeliverOrder(@Query("order_id") int orderId);
+
+    @GET("/akhdmny/public/api/driver/cancel-order")
+    Call<CancelOrderResponse> CancelOrderApi(@Query("order_id") int orderId);
 
     @GET("/akhdmny/public/api/driver/submit-bid")
     Call<SubmitBidResp> SubmitBid(@Query("order_id") int orderId, @Query("bid") int bid);

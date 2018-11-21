@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="languages">
+        <item>@string/menu_english</item>
+        <item>@string/menu_arabic</item>
+
+    </string-array>
+
+    <string-array name="languages_short">
+        <item>en</item>
+        <item>ar</item>
+
+    </string-array>
+
+</resources>

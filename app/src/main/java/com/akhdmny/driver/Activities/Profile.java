@@ -171,8 +171,7 @@ public class Profile extends AppCompatActivity {
                 focusView.requestFocus();
             }
         }else {
-            dialog = new SpotsDialog(this,"Please wait...");
-            dialog.show();
+            NetworkConsume.getInstance().ShowProgress(Profile.this);
             UpdateProfileApi();
         }
     }
@@ -230,19 +229,19 @@ public class Profile extends AppCompatActivity {
                 if (response.isSuccessful()){
                     ProfileResponse response1 = response.body();
                     NetworkConsume.getInstance().SnackBarSucccess(profileLayout,Profile.this, R.string.success);
-                    dialog.hide();
+                    NetworkConsume.getInstance().HideProgress();
                 }else {
                     Gson gson = new Gson();
                     LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                     NetworkConsume.getInstance().SnackBarError(profileLayout,Profile.this,R.string.error);
-                    dialog.hide();
+                    NetworkConsume.getInstance().HideProgress();
                 }
             }
 
             @Override
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
                 Toast.makeText(Profile.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                dialog.hide();
+                NetworkConsume.getInstance().HideProgress();
             }
         });
 

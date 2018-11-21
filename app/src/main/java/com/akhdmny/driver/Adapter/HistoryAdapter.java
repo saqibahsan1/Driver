@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.akhdmny.driver.ApiResponse.ComplaintHistoryInsideResponse;
-import com.akhdmny.driver.ApiResponse.ComplaintHistoryInsideResponse;
 import com.akhdmny.driver.R;
 
 import java.util.ArrayList;

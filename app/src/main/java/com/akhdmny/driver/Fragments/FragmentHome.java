@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -25,8 +26,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akhdmny.driver.LocaleHelper;
+import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.R;
 import com.akhdmny.driver.Service.TrackerService;
+import com.akhdmny.driver.Utils.StatusModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -47,6 +51,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -79,9 +95,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     @BindView(R.id.topBar)
     LinearLayout topBar;
 
-//    @BindView(R.id.topBarArabic)
-//    RelativeLayout topBarArabi;
-
     @BindView(R.id.titleBar)
     TextView titleBar;
     @BindView(R.id.statusColorImg)
@@ -89,39 +102,93 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     private FragmentActivity myContext;
     private BottomSheetBehavior mBottomSheetBehaviour;
     boolean status = true;
-
+    SharedPreferences preferences;
+    String id;
+    DatabaseReference myRef;
     public FragmentHome() {
 
     }
-
+    private LinkedHashMap<String, StatusModel> adminModelLArrayList = new LinkedHashMap<>();
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
+        preferences = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+        id = String.valueOf(preferences.getInt("id",0));
+        myRef = FirebaseDatabase.getInstance().getReference().child("Token").child(id);
 
-//        if (LocaleHelper.languageSwitcher.getCurrentLocale().getLanguage().equals("ar"))   {
-//            topBar.setVisibility(View.GONE);
-//            topBarArabi.setVisibility(View.VISIBLE);
-//        } else {
-//            topBar.setVisibility(View.VISIBLE);
-//            topBarArabi.setVisibility(View.GONE);
-//        }
+            myRef.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    try {
+                    if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
 
-        if (status){
-            buttonStatus.setBackgroundColor(getResources().getColor(R.color.Red));
-            buttonStatus.setText(R.string.Bz);
-            titleBar.setText(R.string.available);
-            statusColorImg.setBackground(getResources().getDrawable(R.drawable.green_dot));
 
-            status = false;
-        }else {
-            buttonStatus.setBackgroundColor(getResources().getColor(R.color.green));
-            buttonStatus.setText(R.string.online);
-            titleBar.setText(R.string.busy);
-            statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
-            status = true;
-        }
+                        buttonStatus.setBackgroundColor(getResources().getColor(R.color.Red));
+                        buttonStatus.setText(R.string.Bz);
+                        titleBar.setText(R.string.available);
+                        statusColorImg.setBackground(getResources().getDrawable(R.drawable.green_dot));
+
+
+                    }else if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("1")){
+                        buttonStatus.setBackgroundColor(getResources().getColor(R.color.green));
+                        buttonStatus.setText(R.string.online);
+                        titleBar.setText(R.string.busy);
+                        statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
+
+                    }
+
+                }catch (Exception e){
+                    Log.e("Firebase db err:", e.getMessage());
+                }
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    try {
+
+
+                    if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
+
+                            buttonStatus.setBackgroundColor(getResources().getColor(R.color.Red));
+                            buttonStatus.setText(R.string.Bz);
+                            titleBar.setText(R.string.available);
+                            statusColorImg.setBackground(getResources().getDrawable(R.drawable.green_dot));
+
+
+                        }else {
+                            buttonStatus.setBackgroundColor(getResources().getColor(R.color.green));
+                            buttonStatus.setText(R.string.online);
+                            titleBar.setText(R.string.busy);
+                            statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
+
+                        }
+
+
+                    }catch (Exception e){
+                        Log.e("Firebase db err:", e.getMessage());
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+
+
         mMapView = (MapView) view.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         buttonStatus.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +198,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                     buttonStatus.setBackgroundColor(getResources().getColor(R.color.Red));
                     buttonStatus.setText(R.string.Bz);
                     titleBar.setText(R.string.available);
+                    UpdateToken(Integer.valueOf(id),0);
                     statusColorImg.setBackground(getResources().getDrawable(R.drawable.green_dot));
 
                     status = false;
@@ -138,13 +206,14 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                     buttonStatus.setBackgroundColor(getResources().getColor(R.color.green));
                     buttonStatus.setText(R.string.online);
                     titleBar.setText(R.string.busy);
+                    UpdateToken(Integer.valueOf(id),1);
                     statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
                     status = true;
                 }
             }
         });
         mMapView.getMapAsync(this);
-        mMapView.onResume();
+//        mMapView.onResume();
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
@@ -156,25 +225,39 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                 .addApi(LocationServices.API)
                 .build();
 //
-//        mLocationRequest = new LocationRequest();
-////        mLocationRequest.setNumUpdates(1);
-////        mLocationRequest.setExpirationTime(6000);
-//        mLocationRequest.setInterval(INTERVAL);
-//        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setNumUpdates(1);
+//        mLocationRequest.setExpirationTime(6000);
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 //
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            ActivityCompat.requestPermissions(getActivity(),
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    PERMISSION_CODE);
-//        } else {
-//            ActivityCompat.requestPermissions(getActivity(),
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    PERMISSION_CODE);
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_CODE);
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_CODE);
+        }
 
         return view;
     }
+    private void UpdateToken(int id,Integer status){
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(getActivity(), instanceIdResult -> {
+            String newToken = instanceIdResult.getToken();
+            Log.e("newToken", newToken);
+
+        final String path = "Token/" + id;
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+
+
+        ref.child("status").setValue(status);
+        });
+    }
+
     private void startTrackerService() {
         getActivity().startService(new Intent(getActivity(), TrackerService.class));
         //finish();
@@ -189,7 +272,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                 case LocationSettingsStatusCodes.SUCCESS:
                     // All location settings are satisfied. The client can initialize location
                     // requests here.
-                    getCurrentLocation();
 
                     break;
                 case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -231,9 +313,9 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                         mMap.setMyLocationEnabled(true);
 
 
-                        Toast.makeText(getActivity(), "Permission Granted", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_LONG).show();
+                        requestPermission();
 
                     }
                 }
@@ -278,11 +360,11 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 //                .title("Current Location")); //Adding a title
         //Moving the camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
-                .anchor(0.5f, 0.5f)
-                .title("current position")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
-                .draggable(true));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
+//                .anchor(0.5f, 0.5f)
+//                .title("current position")
+//                /*.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))*/
+//                .draggable(true));
         //Animating the camera
         mMap.animateCamera(CameraUpdateFactory.zoomTo(9));
 
@@ -300,11 +382,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         getCurrentLocation();
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-//
 
     }
 
@@ -313,10 +390,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
     }
 
-//    private void DriverStatus()
-//    {
-//        NetworkConsume.getInstance().getAuthAPI();
-//    }
 @Override
 public void onMapReady(GoogleMap googleMap) {
     mMap = googleMap;
@@ -328,6 +401,10 @@ public void onMapReady(GoogleMap googleMap) {
 
     if (checkPermission()) {
         buildGoogleApiClient();
+        if (Build.VERSION.SDK_INT < 23) {
+            LatLng sydney = new LatLng(21.4858, 39.1925);
+            mMap.addMarker(new MarkerOptions().position(sydney));
+        }
         mMap.setMyLocationEnabled(true);
         startTrackerService();
         // Check the location settings of the user and create the callback to react to the different possibilities
@@ -336,6 +413,7 @@ public void onMapReady(GoogleMap googleMap) {
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, locationSettingsRequestBuilder.build());
         result.setResultCallback(mResultCallbackFromSettings);
+
     } else {
         requestPermission();
     }
@@ -343,11 +421,9 @@ public void onMapReady(GoogleMap googleMap) {
 }
     private void requestPermission() {
 
-        ActivityCompat.requestPermissions(getActivity(), new String[]
-                {
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                }, PERMISSION_CODE);
+        if (Build.VERSION.SDK_INT >= 23) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
+        }
 
     }
     public boolean checkPermission() {
@@ -358,11 +434,6 @@ public void onMapReady(GoogleMap googleMap) {
         return FirstPermissionResult == PackageManager.PERMISSION_GRANTED &&
                 SecondPermissionResult == PackageManager.PERMISSION_GRANTED;
 
-    }
-    public static boolean haveLocationPermission(Context context)
-    {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -424,6 +495,7 @@ public void onMapReady(GoogleMap googleMap) {
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
+        moveMap();
 
     }
 

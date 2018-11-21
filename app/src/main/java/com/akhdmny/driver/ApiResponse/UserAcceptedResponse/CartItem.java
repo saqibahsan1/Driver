@@ -1,6 +1,7 @@
 
 package com.akhdmny.driver.ApiResponse.UserAcceptedResponse;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,15 +10,6 @@ public class CartItem {
     @SerializedName("id")
     @Expose
     private Integer id;
-    @SerializedName("sessionid")
-    @Expose
-    private Object sessionid;
-    @SerializedName("service_id")
-    @Expose
-    private String serviceId;
-    @SerializedName("user_id")
-    @Expose
-    private Integer userId;
     @SerializedName("title")
     @Expose
     private String title;
@@ -38,13 +30,7 @@ public class CartItem {
     private String voice;
     @SerializedName("category_id")
     @Expose
-    private Object categoryId;
-    @SerializedName("lat")
-    @Expose
-    private Double lat;
-    @SerializedName("long")
-    @Expose
-    private Double _long;
+    private Integer categoryId;
     @SerializedName("amount")
     @Expose
     private Double amount;
@@ -53,16 +39,19 @@ public class CartItem {
     private Double distance;
     @SerializedName("type")
     @Expose
-    private String type;
-    @SerializedName("updated_at")
-    @Expose
-    private String updatedAt;
+    private Object type;
     @SerializedName("created_at")
     @Expose
     private String createdAt;
-    @SerializedName("deleted_at")
+    @SerializedName("lat")
     @Expose
-    private Object deletedAt;
+    private Double lat;
+    @SerializedName("long")
+    @Expose
+    private Double _long;
+    @SerializedName("images")
+    @Expose
+    private List<String> images = null;
 
     public Integer getId() {
         return id;
@@ -70,30 +59,6 @@ public class CartItem {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Object getSessionid() {
-        return sessionid;
-    }
-
-    public void setSessionid(Object sessionid) {
-        this.sessionid = sessionid;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
     }
 
     public String getTitle() {
@@ -144,28 +109,12 @@ public class CartItem {
         this.voice = voice;
     }
 
-    public Object getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Object categoryId) {
+    public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
-    }
-
-    public Double getLat() {
-        return lat;
-    }
-
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
-    public Double getLong() {
-        return _long;
-    }
-
-    public void setLong(Double _long) {
-        this._long = _long;
     }
 
     public Double getAmount() {
@@ -184,20 +133,12 @@ public class CartItem {
         this.distance = distance;
     }
 
-    public String getType() {
+    public Object getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Object type) {
         this.type = type;
-    }
-
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public String getCreatedAt() {
@@ -208,12 +149,28 @@ public class CartItem {
         this.createdAt = createdAt;
     }
 
-    public Object getDeletedAt() {
-        return deletedAt;
+    public Double getLat() {
+        return lat;
     }
 
-    public void setDeletedAt(Object deletedAt) {
-        this.deletedAt = deletedAt;
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLong() {
+        return _long;
+    }
+
+    public void setLong(Double _long) {
+        this._long = _long;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
 }

@@ -36,6 +36,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class TrackerService extends Service {
     public void onCreate() {
         super.onCreate();
         requestLocationUpdates();
-        listner();
+      //  listner();
         String yes = NetworkConsume.getInstance().getDefaults("yes",TrackerService.this);
         if (yes != null){
             requestLocationUpdatesOnRoute();
@@ -71,6 +72,7 @@ public class TrackerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
        // Toast.makeText(this, " MyService Started", Toast.LENGTH_LONG).show();
+
         return START_STICKY;
     }
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
@@ -85,47 +87,79 @@ public class TrackerService extends Service {
     private void listner(){
          prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-            }
+       ref.addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-                if (dataSnapshot.getKey().equals("orderId")){
-                    NetworkConsume.getInstance().setDefaults("orderId",dataSnapshot.getValue().toString(),TrackerService.this);
-                }
-                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
-                    Intent start = new Intent(TrackerService.this,AcceptOrderActivity.class);
-                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                   startActivity(start);
-                }
-                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("2")){
-                    Intent start = new Intent(TrackerService.this,DriverOrders.class);
-                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(start);
-                    requestLocationUpdatesOnRoute();
-                }
+               for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                   if (dataSnapshot1.getKey().equals("orderId")) {
+                       NetworkConsume.getInstance().setDefaults("orderId", dataSnapshot1.getValue().toString(), TrackerService.this);
+                   }
+                   if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("0")) {
+                       Intent start = new Intent(TrackerService.this, AcceptOrderActivity.class);
+                       start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                       startActivity(start);
+                   }
+                   if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("2")) {
+                       Intent start = new Intent(TrackerService.this, DriverOrders.class);
+                       start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                       startActivity(start);
+                       requestLocationUpdatesOnRoute();
+                   }
+//                   if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("6")) {
+//                       Intent intent = new Intent(TrackerService.this, MainActivity.class);
+//                       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                       startActivity(intent);
+//                   }
+               }
+           }
 
-            }
+           @Override
+           public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled", databaseError.toException());
-            }
-        });
+           }
+       });
+//        ref.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+//                if (dataSnapshot.getKey().equals("orderId")){
+//                    NetworkConsume.getInstance().setDefaults("orderId",dataSnapshot.getValue().toString(),TrackerService.this);
+//                }
+//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
+//                    Intent start = new Intent(TrackerService.this,AcceptOrderActivity.class);
+//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                   startActivity(start);
+//                }
+//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("2")){
+//                    Intent start = new Intent(TrackerService.this,DriverOrders.class);
+//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(start);
+//                    requestLocationUpdatesOnRoute();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Log.w(TAG, "onCancelled", databaseError.toException());
+//            }
+//        });
     }
 
 

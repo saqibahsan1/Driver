@@ -17,10 +17,10 @@ public class Response {
     private UserInfo userInfo;
     @SerializedName("driverId")
     @Expose
-    private Integer driverId;
+    private Object driverId;
     @SerializedName("driverInfo")
     @Expose
-    private DriverInfo driverInfo;
+    private Object driverInfo;
 
     public OrderDetails getOrderDetails() {
         return orderDetails;
@@ -46,19 +46,19 @@ public class Response {
         this.userInfo = userInfo;
     }
 
-    public Integer getDriverId() {
+    public Object getDriverId() {
         return driverId;
     }
 
-    public void setDriverId(Integer driverId) {
+    public void setDriverId(Object driverId) {
         this.driverId = driverId;
     }
 
-    public DriverInfo getDriverInfo() {
+    public Object getDriverInfo() {
         return driverInfo;
     }
 
-    public void setDriverInfo(DriverInfo driverInfo) {
+    public void setDriverInfo(Object driverInfo) {
         this.driverInfo = driverInfo;
     }
 

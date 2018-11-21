@@ -7,9 +7,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.akhdmny.driver.ApiResponse.LoginApiResponse;
@@ -21,6 +25,7 @@ import com.akhdmny.driver.Requests.LoginRequest;
 import com.akhdmny.driver.Utils.UserDetails;
 import com.akhdmny.driver.Utils.Validator;
 import com.google.gson.Gson;
+import com.hbb20.CountryCodePicker;
 import com.victor.loading.rotate.RotateLoading;
 
 import butterknife.BindView;
@@ -46,8 +51,12 @@ public class login extends AppCompatActivity {
     Button btn_forgot_password;
     @BindView(R.id.btn_skip)
     Button btn_skip;
+    @BindView(R.id.eye_icon)
+    ImageView eye_icon;
+    @BindView(R.id.ccp_getFullNumber)
+    CountryCodePicker ccp_getFullNumber;
+    boolean show = true;
     String token = "YWhsYW0tYXBwLWFuZHJvaWQ6NGQxNjNlZTgtMzJiZi00M2U2LWFlMzgtY2E1YmMwZjA0N2Nk";
-    SpotsDialog dialog;
     private Activity mActivity;
 
     @Override
@@ -61,7 +70,29 @@ public class login extends AppCompatActivity {
 
     private void ClickEvent(){
         mActivity = this;
+        ccp_getFullNumber.registerCarrierNumberEditText(et_Mobile);
+        eye_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                if (show){
+                    eye_icon.setBackgroundResource(android.R.color.transparent);
+                    et_password.setInputType(InputType.TYPE_CLASS_TEXT);
+                    et_password.setTransformationMethod(HideReturnsTransformationMethod
+                            .getInstance());// show password
+                    show = false;
+                }else {
+                    eye_icon.setBackgroundResource(android.R.color.transparent);
+//                    eye_icon.setBackgroundResource(R.drawable.eye);
+                    et_password.setInputType(InputType.TYPE_CLASS_TEXT
+                            | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    et_password.setTransformationMethod(PasswordTransformationMethod
+                            .getInstance());// hide password
+                    show=true;
+                }
+
+            }
+        });
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,23 +110,22 @@ public class login extends AppCompatActivity {
 
     private void Login(){
         // rotateLoading.start();
-        dialog = new SpotsDialog(this,"Please wait...");
-        dialog.show();
+        NetworkConsume.getInstance().ShowProgress(login.this);
         Validator validator = new Validator(login.this, true);
 
         validator
                 .setRules(Validator.Rules.REQUIRED, Validator.Rules.MIN)
-                .validate(et_Mobile.getText().toString(), et_Mobile, 3)
+                .validate(ccp_getFullNumber.getFullNumberWithPlus(), et_Mobile, 3)
                 .validate(et_password.getText().toString(), et_password, 3);
 
         if (validator.fails()) {
-            dialog.hide();
+           NetworkConsume.getInstance().HideProgress();
             return;
         }
         // driver login 923138834882
         NetworkConsume.getInstance().setAccessKey("Basic "+token);
         LoginRequest request = new LoginRequest();
-        request.setPhone(et_Mobile.getText().toString());
+        request.setPhone(ccp_getFullNumber.getFullNumberWithPlus());
         request.setPassword(et_password.getText().toString());
 
         NetworkConsume.getInstance().getAuthAPI().LoginApi(request).enqueue(new Callback<LoginApiResponse>() {
@@ -116,11 +146,11 @@ public class login extends AppCompatActivity {
 
                     finish();
                     overridePendingTransition(R.anim.slide_left_in,R.anim.slide_left_out);
-                    dialog.hide();
+                    NetworkConsume.getInstance().HideProgress();
 
                 }else {
                     // rotateLoading.stop();
-                    dialog.hide();
+                    NetworkConsume.getInstance().HideProgress();
                     Gson gson = new Gson();
                     LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                     Toast.makeText(mActivity, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
@@ -130,7 +160,7 @@ public class login extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginApiResponse> call, Throwable t) {
-                dialog.hide();
+                NetworkConsume.getInstance().HideProgress();
                 Toast.makeText(login.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

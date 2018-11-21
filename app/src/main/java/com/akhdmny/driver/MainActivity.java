@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akhdmny.driver.Activities.AcceptOrderActivity;
 import com.akhdmny.driver.Activities.MyCart;
 import com.akhdmny.driver.Activities.Profile;
 import com.akhdmny.driver.ApiResponse.LoginInsideResponse;
@@ -41,8 +43,17 @@ import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.Service.TrackerService;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,22 +95,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String ID_MENU_ACTIVE = "IdMenuActive";
     Button cartButton;
     SharedPreferences prefs;
+    String lang;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        lang = LocaleHelper.getInstance().getLanguage();
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config,
+                getBaseContext().getResources().getDisplayMetrics());
         setContentView(R.layout.activity_main);
+
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        //Saqib test
         try {
+
             DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
             Device_Width = metrics.widthPixels;
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
                 String newToken = instanceIdResult.getToken();
                 Log.e("newToken", newToken);
                 prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+                final String path = "Token/" + prefs.getInt("id",0);
+                String lang = LocaleHelper.languageSwitcher.getCurrentLocale().getLanguage();
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
 
+                ref.child("lang").setValue(lang);
                 UpdateToken(prefs.getInt("id",0),newToken);
 
             });
@@ -108,11 +132,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         tvTitle = (TextView) toolbar.findViewById(R.id.tvTitle);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        String yes = NetworkConsume.getInstance().getDefaults("yes",MainActivity.this);
-        if (yes != null){
-            startActivity(new Intent(MainActivity.this,DriverOrders.class));
-            finish();
-        }
+//        String yes = NetworkConsume.getInstance().getDefaults("yes",MainActivity.this);
+//        if (yes != null){
+//            startActivity(new Intent(MainActivity.this,DriverOrders.class));
+//            finish();
+//        }
         if(null == savedInstanceState){
             activeMenu = R.id.home;
             setFragment(fragmentHome);
@@ -184,27 +208,100 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         clickLIstner();
 
     }
-    private void UpdateToken(int id,String token){
+    private void startTrackerService() {
+       startService(new Intent(MainActivity.this, TrackerService.class));
+        //finish();
+    }
 
-        Network.getInstance().getAuthAPINew().Token(id,token).enqueue(new Callback<UpdateTokenResponse>() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        listner();
+        setFragment(fragmentHome);
+        tvTitle.setText(getString(R.string.Home));
+    }
+    private void listner(){
+        prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onResponse(Call<UpdateTokenResponse> call, Response<UpdateTokenResponse> response) {
-                UpdateTokenResponse updateTokenResponse = response.body();
-                if (response.isSuccessful()){
-                    //  Toast.makeText(FCM_service.this, updateTokenResponse.getResponse().getToken(), Toast.LENGTH_SHORT).show();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                }else {
-                    Gson gson = new Gson();
-                    LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
-                    Toast.makeText(MainActivity.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                    if (dataSnapshot1.getKey().equals("orderId")) {
+                        NetworkConsume.getInstance().setDefaults("orderId", dataSnapshot1.getValue().toString(), MainActivity.this);
+                    }
+                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("0")) {
+                        Intent start = new Intent(MainActivity.this, AcceptOrderActivity.class);
+                        start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(start);
+                    }
+                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("2")) {
+                        Intent start = new Intent(MainActivity.this, DriverOrders.class);
+                        startActivity(start);
+//                        requestLocationUpdatesOnRoute();
+                    }
+//                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("6")) {
+//                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        startActivity(intent);
+//                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<UpdateTokenResponse> call, Throwable t) {
-                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
+//        ref.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+//                if (dataSnapshot.getKey().equals("orderId")){
+//                    NetworkConsume.getInstance().setDefaults("orderId",dataSnapshot.getValue().toString(),TrackerService.this);
+//                }
+//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
+//                    Intent start = new Intent(TrackerService.this,AcceptOrderActivity.class);
+//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                   startActivity(start);
+//                }
+//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("2")){
+//                    Intent start = new Intent(TrackerService.this,DriverOrders.class);
+//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(start);
+//                    requestLocationUpdatesOnRoute();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+//                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Log.w(TAG, "onCancelled", databaseError.toException());
+//            }
+//        });
+    }
+
+
+    private void UpdateToken(int id, String token){
+        final String path = "Token/" + id;
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+        ref.child("token").setValue(token);
     }
 
     private void clickLIstner(){
@@ -216,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }else {
                     Log.i("Hide","true");
                 }
-
             }
         });
     }
@@ -308,4 +404,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onSaveInstanceState(outState);
         outState.putInt(ID_MENU_ACTIVE, activeMenu);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+//        switch (requestCode) {
+//
+//            case PERMISSION_CODE:
+//
+//                if (grantResults.length > 0) {
+//
+//                    boolean finelocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+//                    boolean coarselocation = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+//
+//                    if (finelocation && coarselocation) {
+//
+//                        if (checkPermission())
+//                            buildGoogleApiClient();
+//                        mMap.setMyLocationEnabled(true);
+//
+//
+//                        Toast.makeText(getActivity(), "Permission Granted", Toast.LENGTH_LONG).show();
+//                    } else {
+//                        Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_LONG).show();
+//
+//                    }
+//                }
+//
+//                break;
+//        }
+
+    }
+
 }

@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,16 +30,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.akhdmny.driver.Activities.AcceptOrderActivity;
 import com.akhdmny.driver.Activities.Chat;
 import com.akhdmny.driver.Adapter.DriverDetailedAdapter;
-import com.akhdmny.driver.Adapter.MyCartAdapter;
 import com.akhdmny.driver.ApiResponse.CartInsideResponse;
-import com.akhdmny.driver.ApiResponse.CartOrder;
-import com.akhdmny.driver.ApiResponse.Cartitem;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
-import com.akhdmny.driver.ApiResponse.OrdersResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
+import com.akhdmny.driver.ApiResponse.cancelOrder.CancelOrderResponse;
+import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
@@ -51,11 +48,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -75,9 +69,8 @@ import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.llollox.androidtoggleswitch.widgets.ToggleSwitch;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,6 +85,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMapLongClickListener {
     private static final int PERMISSION_CODE = 99;
+    private static final int PERMISSION_CALL = 22;
     private GoogleMap mMap;
     MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
@@ -105,7 +99,6 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     LocationRequest mLocationRequest;
     int INTERVAL = 1000;
     int FASTEST_INTERVAL = 500;
-    private FragmentActivity myContext;
     @BindView(R.id.toggleButtons)
     ToggleSwitch toogleButtons;
     SharedPreferences prefs;
@@ -129,6 +122,15 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     @BindView(R.id.CancelOrder)
     Button CancelOrder;
 
+    @BindView(R.id.total_amount)
+    TextView total_amount;
+
+    @BindView(R.id.tip)
+    TextView tip;
+
+    @BindView(R.id.final_amount)
+    TextView final_amount;
+
     SpotsDialog dialog;
 
     @BindView(R.id.OrdersLayout)
@@ -141,14 +143,12 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     Toolbar toolbar;
     TextView tvTitle;
 
-    int DriverId = 0;
-    public DriverOrders(){
+    String UserNumber = "";
+    String id;;
+    public DriverOrders() {
 
     }
 
-    private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 1000;
-    private static final float LOCATION_DISTANCE = 10f;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -160,7 +160,8 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         tvTitle.setText(getString(R.string.Home));
         prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
-       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        id = String.valueOf(prefs.getInt("id",0));
         list = new ArrayList<>();
         listResponse = new ArrayList<>();
 
@@ -170,11 +171,11 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         toogleButtons.setOnChangeListener(new ToggleSwitch.OnChangeListener() {
             @Override
             public void onToggleSwitchChanged(int i) {
-                if (i==0){
+                if (i == 0) {
                     scrollView.setVisibility(View.GONE);
                     map_layout.setVisibility(View.VISIBLE);
                     callChatBtns.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     scrollView.setVisibility(View.VISIBLE);
                     map_layout.setVisibility(View.GONE);
                     callChatBtns.setVisibility(View.GONE);
@@ -212,7 +213,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                     PERMISSION_CODE);
         }
 
-        CartApi();
+
         startTrackerService();
 
         deliver.setOnClickListener(new View.OnClickListener() {
@@ -222,37 +223,121 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        CancelOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CancelOrderApi();
+            }
+        });
+
         driverChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(DriverOrders.this,Chat.class));
+                startActivity(new Intent(DriverOrders.this, Chat.class));
+            }
+        });
+
+        driverCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callEvent();
             }
         });
     }
+    private void requestPermissionForCall() {
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            requestPermissions(new String[]{Manifest.permission.CALL_PHONE}, PERMISSION_CALL);
+        }
+
+    }
+    private void callEvent(){
+        if (checkCallPermission()) {
+            String uri = "tel:" + UserNumber;
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse(uri));
+            startActivity(intent);
+        }else {
+            requestPermissionForCall();
+        }
+
+    }
+
+
 
     private void startTrackerService() {
         startService(new Intent(this, TrackerService.class));
         //finish();
     }
+    private void CancelOrderApi(){
+        NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
+        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
+        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
+        NetworkConsume.getInstance().getAuthAPI().CancelOrderApi(Integer.parseInt(orderID)).enqueue(new Callback<CancelOrderResponse>() {
+            @Override
+            public void onResponse(Call<CancelOrderResponse> call, Response<CancelOrderResponse> response) {
+                if (response.isSuccessful()){
+                    CancelOrderResponse cancelOrderResponse = response.body();
+                    try {
+
+
+                    if (cancelOrderResponse.getStatus()){
+                        NetworkConsume.getInstance().setDefaults("yes",null,DriverOrders.this);
+                        startActivity(new Intent(DriverOrders.this,MainActivity.class));
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                                child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+                        ref.child("status").setValue(6);
+
+                        finish();
+                        NetworkConsume.getInstance().HideProgress();
+                    }
+                    }catch (Exception e){
+                        NetworkConsume.getInstance().HideProgress();
+                    }
+
+                }else {
+                    NetworkConsume.getInstance().HideProgress();
+                    Gson gson = new Gson();
+                    LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
+                    Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CancelOrderResponse> call, Throwable t) {
+                Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                NetworkConsume.getInstance().HideProgress();
+            }
+        });
+    }
 
     private void deliverApi(){
-        dialog = new SpotsDialog(DriverOrders.this,"Please wait...");
-        dialog.show();
-        NetworkConsume.getInstance().getAuthAPI().DeliverOrder(DriverId).enqueue(new Callback<DeliverOrderApi>() {
+        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
+        NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
+        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
+        NetworkConsume.getInstance().getAuthAPI().DeliverOrder(Integer.parseInt(orderID)).enqueue(new Callback<DeliverOrderApi>() {
             @Override
             public void onResponse(Call<DeliverOrderApi> call, Response<DeliverOrderApi> response) {
                 if (response.isSuccessful()){
-                    DeliverOrderApi api = response.body();
+                    try {
+                        DeliverOrderApi api = response.body();
                     if (api.getStatus()){
+                       DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                                child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+                        ref.child("status").setValue(6);
                         NetworkConsume.getInstance().setDefaults("yes",null,DriverOrders.this);
                         startActivity(new Intent(DriverOrders.this,MainActivity.class));
                         finish();
-                        dialog.dismiss();
+                        NetworkConsume.getInstance().HideProgress();
                     }
+                    }catch (Exception e){
+                        NetworkConsume.getInstance().HideProgress();
+
+                        }
 
 
                 }else {
-                    dialog.hide();
+                    NetworkConsume.getInstance().HideProgress();
                     Gson gson = new Gson();
                     LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                     Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
@@ -262,7 +347,8 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onFailure(Call<DeliverOrderApi> call, Throwable t) {
-                dialog.dismiss();
+                Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                NetworkConsume.getInstance().HideProgress();
             }
         });
     }
@@ -275,12 +361,9 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 .icon(BitmapDescriptorFactory.fromResource(driver))
                 .draggable(true));
     }
-    private void CartApi(){
+    private void GetOrderDetails(){
         try {
-
-
-        dialog = new SpotsDialog(DriverOrders.this,"Please wait...");
-        dialog.show();
+            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
         NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
         String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
         NetworkConsume.getInstance().getAuthAPI().getOrderDetails(Integer.valueOf(orderID)).
@@ -300,8 +383,14 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                                             cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
                                 }
                             }
-                            DriverId = cartOrder.getResponse().getDriverId();
-                            NetworkConsume.getInstance().setDefaults("yes",cartOrder.getResponse().getDriverInfo().getName(),DriverOrders.this);
+                            try {
+                            total_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getAmount())+" "+cartOrder.getResponse().
+                            getOrderDetails().getCurrency());
+                            tip.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getTip()));
+                            final_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getFinalAmount())+" "+cartOrder.getResponse().
+                                    getOrderDetails().getCurrency());
+                            UserNumber = cartOrder.getResponse().getUserInfo().getPhone();
+                            NetworkConsume.getInstance().setDefaults("yes",cartOrder.getResponse().getUserInfo().getFirstName(),DriverOrders.this);
                             NetworkConsume.getInstance().setDefaults("userId", String.valueOf(cartOrder.getResponse().getUserInfo().getId()),DriverOrders.this);
 //                            createMarker(cartOrder.getResponse().getDriverInfo().getLat(),cartOrder.getResponse().getDriverInfo().getLong(),
 //                                    cartOrder.getResponse().getDriverInfo().getAddress());
@@ -313,13 +402,27 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                             recyclerView.setLayoutManager(mLayoutManager);
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
                             recyclerView.setAdapter(myAdapter);
-                            dialog.hide();
+                            NetworkConsume.getInstance().HideProgress();
 
+                            }catch (Exception e){
+                                NetworkConsume.getInstance().HideProgress();
+                                Toast.makeText(DriverOrders.this, "Something Went Wrong!! Details Missing...", Toast.LENGTH_SHORT).show();
+                            }
                         }else {
-                            dialog.hide();
+                            NetworkConsume.getInstance().HideProgress();
                             Gson gson = new Gson();
                             LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
                             Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                            if (message.getError().getMessage().get(0).equals("Unauthorized access_token")){
+                                SharedPreferences prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+                                prefs.edit().putString("access_token", "")
+                                        .putString("avatar","")
+                                        .putString("login","").commit();
+
+                                Intent intent = new Intent(DriverOrders.this,  login.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            }
 
                         }
 
@@ -327,7 +430,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onFailure(Call<DriverAwardedResp> call, Throwable t) {
-                        dialog.hide();
+                        NetworkConsume.getInstance().HideProgress();
                         Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
 
                     }
@@ -338,8 +441,12 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    @Override
+    public void onBackPressed() {
 
-    private void heading(double UserLat,double UserLong){
+    }
+
+    private void heading(double UserLat, double UserLong){
         GPSActivity activity = new GPSActivity(DriverOrders.this);
         LatLng current = new LatLng(activity.getLatitude(),activity.getLongitude());
         LatLng UserLoc = new LatLng(UserLat,UserLong);
@@ -412,10 +519,24 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 //                        Toast.makeText(DriverOrders.this, "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(DriverOrders.this, "Permission Denied", Toast.LENGTH_LONG).show();
+                        requestPermission();
 
                     }
                 }
 
+                break;
+
+            case PERMISSION_CALL:
+                if (grantResults.length>0){
+                    boolean CallResult = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+                    if (CallResult){
+                        if (checkCallPermission())
+                            callEvent();
+                    }else {
+                        requestPermissionForCall();
+                    }
+                }
                 break;
         }
 
@@ -448,11 +569,11 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 //                .title("Current Location")); //Adding a title
         //Moving the camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
-                .anchor(0.5f, 0.5f)
-                .title("current position")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
-                .draggable(true));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
+//                .anchor(0.5f, 0.5f)
+//                .title("current position")
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
+//                .draggable(true));
         //Animating the camera
         mMap.animateCamera(CameraUpdateFactory.zoomTo(9));
 
@@ -536,7 +657,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
 //            getCurrentLocation();
-
+            GetOrderDetails();
             // Check the location settings of the user and create the callback to react to the different possibilities
             LocationSettingsRequest.Builder locationSettingsRequestBuilder = new LocationSettingsRequest.Builder()
                     .addLocationRequest(mLocationRequest);
@@ -566,6 +687,11 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         return FirstPermissionResult == PackageManager.PERMISSION_GRANTED &&
                 SecondPermissionResult == PackageManager.PERMISSION_GRANTED;
 
+    }
+    public boolean checkCallPermission(){
+        int callPerm = ContextCompat.checkSelfPermission(DriverOrders.this,Manifest.permission.CALL_PHONE);
+
+        return callPerm == PackageManager.PERMISSION_GRANTED;
     }
 
 
