@@ -37,8 +37,8 @@ import android.widget.Toast;
 import com.akhdmny.driver.Adapter.ImageAdapterCart;
 import com.akhdmny.driver.Adapter.MyCartAdapter;
 import com.akhdmny.driver.ApiResponse.BidResp.SubmitBidResp;
-import com.akhdmny.driver.ApiResponse.OrdersResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.OrdersResponse.GetOrderItemsResp;
+import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.Fragments.DriverOrders;
@@ -221,8 +221,8 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
 
                             }else {
                                 list.add(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i));
-                                createMarker(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getFromLat(),
-                                        getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getFromLong(),
+                                createMarker(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getLat(),
+                                        getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getLong(),
                                         getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
 
 //                                createMarker(getOrderItemsResp.getResponse().getOrderDetails().getToLat(),

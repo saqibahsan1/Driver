@@ -2,6 +2,8 @@
 package com.akhdmny.driver.ApiResponse.OrdersResponse;
 
 import java.util.List;
+
+import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

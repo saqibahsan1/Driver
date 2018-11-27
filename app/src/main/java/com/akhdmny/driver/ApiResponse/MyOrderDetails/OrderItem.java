@@ -62,7 +62,7 @@ public class OrderItem {
     private Double distance;
     @SerializedName("type")
     @Expose
-    private String type;
+    private Object type;
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
@@ -217,11 +217,11 @@ public class OrderItem {
         this.distance = distance;
     }
 
-    public String getType() {
+    public Object getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Object type) {
         this.type = type;
     }
 

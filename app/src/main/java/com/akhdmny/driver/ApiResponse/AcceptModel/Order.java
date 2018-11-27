@@ -1,10 +1,8 @@
 
-package com.akhdmny.driver.ApiResponse.MyOrderDetails;
+package com.akhdmny.driver.ApiResponse.AcceptModel;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
 
 public class Order {
 
@@ -16,13 +14,13 @@ public class Order {
     private Integer userId;
     @SerializedName("driver_id")
     @Expose
-    private Integer driverId;
+    private String driverId;
     @SerializedName("coupon_id")
     @Expose
     private Object couponId;
     @SerializedName("type")
     @Expose
-    private String type;
+    private Object type;
     @SerializedName("location_type")
     @Expose
     private Object locationType;
@@ -49,34 +47,28 @@ public class Order {
     private Double _long;
     @SerializedName("status")
     @Expose
-    private String status;
+    private Integer status;
     @SerializedName("description")
     @Expose
     private Object description;
     @SerializedName("cancel_reason")
     @Expose
     private Object cancelReason;
-    @SerializedName("bid")
-    @Expose
-    private Integer bid;
-    @SerializedName("tip")
-    @Expose
-    private Integer tip;
     @SerializedName("created_at")
     @Expose
     private String createdAt;
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
-    @SerializedName("deleted_at")
-    @Expose
-    private Object deletedAt;
     @SerializedName("remember_token")
     @Expose
     private Object rememberToken;
-    @SerializedName("order_items")
+    @SerializedName("deleted_at")
     @Expose
-    private List<OrderItem> orderItems = null;
+    private Object deletedAt;
+    @SerializedName("bid")
+    @Expose
+    private String bid;
 
     public Integer getId() {
         return id;
@@ -94,11 +86,11 @@ public class Order {
         this.userId = userId;
     }
 
-    public Integer getDriverId() {
+    public String getDriverId() {
         return driverId;
     }
 
-    public void setDriverId(Integer driverId) {
+    public void setDriverId(String driverId) {
         this.driverId = driverId;
     }
 
@@ -110,11 +102,11 @@ public class Order {
         this.couponId = couponId;
     }
 
-    public String getType() {
+    public Object getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Object type) {
         this.type = type;
     }
 
@@ -182,11 +174,11 @@ public class Order {
         this._long = _long;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -206,22 +198,6 @@ public class Order {
         this.cancelReason = cancelReason;
     }
 
-    public Integer getBid() {
-        return bid;
-    }
-
-    public void setBid(Integer bid) {
-        this.bid = bid;
-    }
-
-    public Integer getTip() {
-        return tip;
-    }
-
-    public void setTip(Integer tip) {
-        this.tip = tip;
-    }
-
     public String getCreatedAt() {
         return createdAt;
     }
@@ -238,14 +214,6 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    public Object getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(Object deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
     public Object getRememberToken() {
         return rememberToken;
     }
@@ -254,12 +222,20 @@ public class Order {
         this.rememberToken = rememberToken;
     }
 
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
+    public Object getDeletedAt() {
+        return deletedAt;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
+    public void setDeletedAt(Object deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public String getBid() {
+        return bid;
+    }
+
+    public void setBid(String bid) {
+        this.bid = bid;
     }
 
 }

@@ -216,86 +216,86 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
-        listner();
+//        listner();
         setFragment(fragmentHome);
         tvTitle.setText(getString(R.string.Home));
     }
-    private void listner(){
-        prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                    if (dataSnapshot1.getKey().equals("orderId")) {
-                        NetworkConsume.getInstance().setDefaults("orderId", dataSnapshot1.getValue().toString(), MainActivity.this);
-                    }
-                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("0")) {
-                        Intent start = new Intent(MainActivity.this, AcceptOrderActivity.class);
-                        start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(start);
-                    }
-                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("2")) {
-                        Intent start = new Intent(MainActivity.this, DriverOrders.class);
-                        startActivity(start);
-//                        requestLocationUpdatesOnRoute();
-                    }
-//                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("6")) {
-//                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                        startActivity(intent);
+//    private void listner(){
+//        prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+//        ref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//
+//                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+//                    if (dataSnapshot1.getKey().equals("orderId")) {
+//                        NetworkConsume.getInstance().setDefaults("orderId", dataSnapshot1.getValue().toString(), MainActivity.this);
 //                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-//        ref.addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-//                if (dataSnapshot.getKey().equals("orderId")){
-//                    NetworkConsume.getInstance().setDefaults("orderId",dataSnapshot.getValue().toString(),TrackerService.this);
+//                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("0")) {
+//                        Intent start = new Intent(MainActivity.this, AcceptOrderActivity.class);
+//                        start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(start);
+//                    }
+//                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("2")) {
+//                        Intent start = new Intent(MainActivity.this, DriverOrders.class);
+//                        startActivity(start);
+////                        requestLocationUpdatesOnRoute();
+//                    }
+////                    if (dataSnapshot1.getKey().equals("status") && dataSnapshot1.getValue().toString().equals("6")) {
+////                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+////                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+////                        startActivity(intent);
+////                    }
 //                }
-//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
-//                    Intent start = new Intent(TrackerService.this,AcceptOrderActivity.class);
-//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                   startActivity(start);
-//                }
-//                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("2")){
-//                    Intent start = new Intent(TrackerService.this,DriverOrders.class);
-//                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(start);
-//                    requestLocationUpdatesOnRoute();
-//                }
-//
 //            }
 //
 //            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-//            }
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
 //
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Log.w(TAG, "onCancelled", databaseError.toException());
 //            }
 //        });
-    }
+////        ref.addChildEventListener(new ChildEventListener() {
+////            @Override
+////            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+////                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+////            }
+////
+////            @Override
+////            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+////                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+////                if (dataSnapshot.getKey().equals("orderId")){
+////                    NetworkConsume.getInstance().setDefaults("orderId",dataSnapshot.getValue().toString(),TrackerService.this);
+////                }
+////                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("0")){
+////                    Intent start = new Intent(TrackerService.this,AcceptOrderActivity.class);
+////                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////                   startActivity(start);
+////                }
+////                if (dataSnapshot.getKey().equals("status") && dataSnapshot.getValue().toString().equals("2")){
+////                    Intent start = new Intent(TrackerService.this,DriverOrders.class);
+////                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////                    startActivity(start);
+////                    requestLocationUpdatesOnRoute();
+////                }
+////
+////            }
+////
+////            @Override
+////            public void onChildRemoved(DataSnapshot dataSnapshot) {
+////                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+////            }
+////
+////            @Override
+////            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+////                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+////            }
+////
+////            @Override
+////            public void onCancelled(DatabaseError databaseError) {
+////                Log.w(TAG, "onCancelled", databaseError.toException());
+////            }
+////        });
+//    }
 
 
     private void UpdateToken(int id, String token){
