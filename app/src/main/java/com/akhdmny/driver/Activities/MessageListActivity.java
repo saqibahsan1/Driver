@@ -2,7 +2,13 @@ package com.akhdmny.driver.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.akhdmny.driver.Adapter.MessageListAdapter;
+import com.akhdmny.driver.ApiResponse.AcceptModel.Driver;
 import com.akhdmny.driver.ApiResponse.AcceptModel.User;
 import com.akhdmny.driver.Models.Message;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
@@ -24,19 +31,36 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class MessageListActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+
+import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
+import cafe.adriel.androidaudiorecorder.model.AudioChannel;
+import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
+import cafe.adriel.androidaudiorecorder.model.AudioSource;
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+public class MessageListActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, MediaPlayer.OnCompletionListener {
 
     private EditText editText;
     private MessageListAdapter mMessageAdapter;
@@ -44,10 +68,20 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
     private List<Message> messageList = new ArrayList<>();
     private DatabaseReference ref;
     private SimpleDateFormat formatter;
-    private User user = CurrentOrder.getInstance().user;
+    private Driver user = CurrentOrder.getInstance().driver;
+    private int orderId = CurrentOrder.getInstance().orderId;
     private ValueEventListener valueEventListner;
     private GoogleApiClient mGoogleApiClient;
     Place place;
+
+    public boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(this,
+                WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(this,
+                RECORD_AUDIO);
+        return result == PackageManager.PERMISSION_GRANTED &&
+                result1 == PackageManager.PERMISSION_GRANTED;
+    }
 
     @SuppressLint("SimpleDateFormat")
     @Override
@@ -83,12 +117,12 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
                 .enableAutoManage(this, this)
                 .build();
 
-        ref = FirebaseDatabase.getInstance().getReference().child("Chat").child("270").child("messages");
+        ref = FirebaseDatabase.getInstance().getReference().child("Chat").child(orderId + "").child("messages");
         getFirebaseMessage();
 
     }
 
-    private void getFirebaseMessage(){
+    private void getFirebaseMessage() {
         valueEventListner = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -100,10 +134,10 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
                         message.setRead(isRead);
                     }
                     messageList.add(message);
-                    if (user != null){
+                    if (user != null) {
                         if (message != null) {
-                            if (!message.getSenderId().equals(user.getId() + "")){
-                                if (message.getRead() == null){
+                            if (!message.getSenderId().equals(user.getId() + "")) {
+                                if (message.getRead() == null) {
                                     message.setRead(false);
                                 }
                                 ref.child(message.getId()).child("isRead").setValue(true);
@@ -112,7 +146,7 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
                     }
                 }
                 mMessageAdapter.notifyDataSetChanged();
-                mMessageRecycler.scrollToPosition(messageList.size() - 1 );
+                mMessageRecycler.scrollToPosition(messageList.size() - 1);
             }
 
             @Override
@@ -123,17 +157,35 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
         ref.addValueEventListener(valueEventListner);
     }
 
-    private void setupButtons(){
+    private void setupButtons() {
 
         Button camera_button = findViewById(R.id.camera_button);
         Button audio_button = findViewById(R.id.audio_button);
         Button location_button = findViewById(R.id.location_button);
 
-        camera_button.setOnClickListener(view -> {
+        audio_button.setOnClickListener(view -> {
+            if (checkPermission()) {
+                AndroidAudioRecorder.with(MessageListActivity.this)
+                        // Required
+                        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/recorded_audio1.wav")
+                        .setColor(ContextCompat.getColor(MessageListActivity.this, R.color.colorPrimary))
+                        .setRequestCode(0)
+                        // Optional
+                        .setSource(AudioSource.MIC)
+                        .setChannel(AudioChannel.STEREO)
+                        .setSampleRate(AudioSampleRate.HZ_48000)
+                        .setAutoStart(false)
+                        .setKeepDisplayOn(true)
+                        // Start recording
+                        .record();
+            } else {
+                ActivityCompat.requestPermissions(this, new
+                        String[]{WRITE_EXTERNAL_STORAGE, RECORD_AUDIO}, 0);
+            }
 
         });
-        audio_button.setOnClickListener(view -> {
-
+        camera_button.setOnClickListener(view -> {
+            EasyImage.openChooserWithGallery(MessageListActivity.this, "Pick source", 0);
         });
         location_button.setOnClickListener(view -> {
 
@@ -149,9 +201,9 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
 
     }
 
-    private void sendMessage(int type){
+    private void sendMessage(int type) {
 
-        switch (type){
+        switch (type) {
             case 1:
 
                 break;
@@ -167,7 +219,7 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
         }
     }
 
-    private void sendMessage(Message message){
+    private void sendMessage(Message message) {
         String key = ref.push().getKey();
         if (user != null) {
             ArrayMap<String, Object> map = new ArrayMap<>();
@@ -224,5 +276,96 @@ public class MessageListActivity extends AppCompatActivity implements GoogleApiC
                 NetworkConsume.getInstance().HideProgress();
             }
         }
+
+        if (requestCode == 0){
+            if (resultCode == RESULT_OK) {
+
+                String url = Environment.getExternalStorageDirectory().getPath() + "/recorded_audio1.wav";
+                Uri imageUri = Uri.fromFile(new File(url));
+                String key = ref.push().getKey() + imageUri.getLastPathSegment();
+                StorageReference filePath = FirebaseStorage.getInstance().getReference().child("Orders").child(orderId  + "").child("audios").child(key);
+                UploadTask uploadTask = filePath.putFile(imageUri);
+                Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        throw Objects.requireNonNull(task.getException());
+                    }
+                    // Continue with the task to get the download URL
+                    return filePath.getDownloadUrl();
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            if (downloadUri != null) {
+                                String url = downloadUri.toString();
+                                Message message = new Message();
+                                message.setType(4);
+                                message.setBody(url);
+                                sendMessage(message);
+                            }
+                        }
+                    }
+                });
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // Oops! User has canceled the recording
+            }
+        }
+
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                //Some error handling
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onImagesPicked(@NonNull List<File> imageFiles, EasyImage.ImageSource source, int type) {
+                for (File imageFile : imageFiles) {
+                    Uri imageUri = Uri.fromFile(imageFiles.get(0));
+                    String key = ref.push().getKey() + imageUri.getLastPathSegment();
+                    StorageReference filePath = FirebaseStorage.getInstance().getReference().child("Orders").child(orderId  + "").child("images").child(key);
+                    UploadTask uploadTask = filePath.putFile(imageUri);
+                    Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                        if (!task.isSuccessful()) {
+                            throw Objects.requireNonNull(task.getException());
+                        }
+                        // Continue with the task to get the download URL
+                        return filePath.getDownloadUrl();
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()) {
+                                Uri downloadUri = task.getResult();
+                                if (downloadUri != null) {
+                                    String url = downloadUri.toString();
+                                    Message message = new Message();
+                                    message.setType(3);
+                                    message.setBody(url);
+                                    sendMessage(message);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCanceled(EasyImage.ImageSource source, int type) {
+                //Cancel handling, you might wanna remove taken photo if it was canceled
+                if (source == EasyImage.ImageSource.CAMERA) {
+                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(MessageListActivity.this);
+                    if (photoFile != null) photoFile.delete();
+                }
+            }
+        });
     }
+
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+
+    }
+
+
 }

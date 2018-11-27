@@ -87,7 +87,7 @@ public class OrderDetails extends AppCompatActivity {
         }
         total_distance.setText("2.23 Km");
         order_type.setText(orderJson.getType());
-        tvTitle.setText("Order Number: "+orderJson.getId());
+        tvTitle.setText("Order Number: " + orderJson.getId());
         String status = orderJson.getStatus();
         if (status.equals("2")) {
             title.setText(getString(R.string.deliverd));

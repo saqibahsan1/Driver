@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -31,9 +32,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akhdmny.driver.Activities.Chat;
+import com.akhdmny.driver.Activities.MessageListActivity;
 import com.akhdmny.driver.Adapter.DriverDetailedAdapter;
+import com.akhdmny.driver.ApiResponse.AcceptModel.Order;
+import com.akhdmny.driver.ApiResponse.AcceptModel.User;
 import com.akhdmny.driver.ApiResponse.CartInsideResponse;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
+import com.akhdmny.driver.ApiResponse.MyOrderDetails.OrderDetail;
+import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
 import com.akhdmny.driver.ApiResponse.cancelOrder.CancelOrderResponse;
 import com.akhdmny.driver.Authenticate.login;
@@ -41,7 +47,7 @@ import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
-import com.akhdmny.driver.Service.TrackerService;
+import com.akhdmny.driver.Singletons.CurrentOrder;
 import com.akhdmny.driver.Utils.GPSActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -107,7 +113,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     FrameLayout map_layout;
 
     @BindView(R.id.callChatBtns)
-    LinearLayout callChatBtns;
+    ConstraintLayout callChatBtns;
 
     @BindView(R.id.RV_MyOrders)
     RecyclerView recyclerView;
@@ -233,7 +239,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         driverChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(DriverOrders.this, Chat.class));
+                startActivity(new Intent(DriverOrders.this, MessageListActivity.class));
             }
         });
 
@@ -266,91 +272,99 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void startTrackerService() {
-        startService(new Intent(this, TrackerService.class));
+//        startService(new Intent(this, TrackerService.class));
         //finish();
     }
     private void CancelOrderApi(){
-        NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
-        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
-        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
-        NetworkConsume.getInstance().getAuthAPI().CancelOrderApi(Integer.parseInt(orderID)).enqueue(new Callback<CancelOrderResponse>() {
-            @Override
-            public void onResponse(Call<CancelOrderResponse> call, Response<CancelOrderResponse> response) {
-                if (response.isSuccessful()){
-                    CancelOrderResponse cancelOrderResponse = response.body();
-                    try {
-
-
-                    if (cancelOrderResponse.getStatus()){
-                        NetworkConsume.getInstance().setDefaults("yes",null,DriverOrders.this);
-                        startActivity(new Intent(DriverOrders.this,MainActivity.class));
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
-                                child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-                        ref.child("status").setValue(6);
-
-                        finish();
+        OrderDetail order = CurrentOrder.getInstance().order;
+        if (order != null) {
+            int orderID = CurrentOrder.getInstance().orderId;
+            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
+            NetworkConsume.getInstance().setAccessKey("Bearer " + prefs.getString("access_token", "12"));
+            NetworkConsume.getInstance().getAuthAPI().CancelOrderApi(orderID).enqueue(new Callback<CancelOrderResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<CancelOrderResponse> call, @NonNull Response<CancelOrderResponse> response) {
+                    if (response.isSuccessful()) {
+                        CancelOrderResponse cancelOrderResponse = response.body();
                         NetworkConsume.getInstance().HideProgress();
-                    }
-                    }catch (Exception e){
-                        NetworkConsume.getInstance().HideProgress();
-                    }
+                        try {
+                            if (cancelOrderResponse != null) {
+                                if (cancelOrderResponse.getStatus()) {
+                                    CurrentOrder.shared = null;
+                                    Intent start = new Intent(DriverOrders.this, MainActivity.class);
+                                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(start);
+                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                                            child("Driver").child(String.valueOf(prefs.getInt("id", 1)));
+                                    ref.child("status").setValue(6);
+                                    finish();
+                                }
+                            }
+                        } catch (Exception e) {
+                            NetworkConsume.getInstance().HideProgress();
+                        }
 
-                }else {
-                    NetworkConsume.getInstance().HideProgress();
-                    Gson gson = new Gson();
-                    LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
-                    Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                    } else {
+                        NetworkConsume.getInstance().HideProgress();
+                        Gson gson = new Gson();
+                        LoginApiError message = gson.fromJson(response.errorBody().charStream(), LoginApiError.class);
+                        Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<CancelOrderResponse> call, Throwable t) {
-                Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                NetworkConsume.getInstance().HideProgress();
-            }
-        });
+                @Override
+                public void onFailure(Call<CancelOrderResponse> call, Throwable t) {
+                    Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    NetworkConsume.getInstance().HideProgress();
+                }
+            });
+        }
     }
 
     private void deliverApi(){
-        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
-        NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
-        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
-        NetworkConsume.getInstance().getAuthAPI().DeliverOrder(Integer.parseInt(orderID)).enqueue(new Callback<DeliverOrderApi>() {
-            @Override
-            public void onResponse(Call<DeliverOrderApi> call, Response<DeliverOrderApi> response) {
-                if (response.isSuccessful()){
-                    try {
-                        DeliverOrderApi api = response.body();
-                    if (api.getStatus()){
-                       DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
-                                child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-                        ref.child("status").setValue(6);
-                        NetworkConsume.getInstance().setDefaults("yes",null,DriverOrders.this);
-                        startActivity(new Intent(DriverOrders.this,MainActivity.class));
-                        finish();
+        OrderDetail order = CurrentOrder.getInstance().order;
+        if (order != null) {
+            int orderID = CurrentOrder.getInstance().orderId;
+            NetworkConsume.getInstance().setAccessKey("Bearer " + prefs.getString("access_token", "12"));
+            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
+            NetworkConsume.getInstance().getAuthAPI().DeliverOrder(orderID).enqueue(new Callback<DeliverOrderApi>() {
+                @Override
+                public void onResponse(@NonNull Call<DeliverOrderApi> call, @NonNull Response<DeliverOrderApi> response) {
+                    if (response.isSuccessful()) {
                         NetworkConsume.getInstance().HideProgress();
-                    }
-                    }catch (Exception e){
-                        NetworkConsume.getInstance().HideProgress();
+                        try {
+                            DeliverOrderApi api = response.body();
+                            if (api != null && api.getStatus()) {
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                                        child("Driver").child(String.valueOf(prefs.getInt("id", 1)));
+                                ref.child("status").setValue(6);
+                                Intent start = new Intent(DriverOrders.this, MainActivity.class);
+                                start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(start);
+                                finish();
+                            }
+                        } catch (Exception e) {
+                            NetworkConsume.getInstance().HideProgress();
 
                         }
 
 
-                }else {
-                    NetworkConsume.getInstance().HideProgress();
-                    Gson gson = new Gson();
-                    LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
-                    Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                    } else {
+                        NetworkConsume.getInstance().HideProgress();
+                        Gson gson = new Gson();
+                        LoginApiError message = gson.fromJson(response.errorBody().charStream(), LoginApiError.class);
+                        Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
 
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<DeliverOrderApi> call, Throwable t) {
-                Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                NetworkConsume.getInstance().HideProgress();
-            }
-        });
+                @Override
+                public void onFailure(Call<DeliverOrderApi> call, Throwable t) {
+                    Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    NetworkConsume.getInstance().HideProgress();
+                }
+            });
+        }
     }
     protected Marker createMarker(double latitude, double longitude, String title,int driver) {
 
@@ -361,85 +375,110 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 .icon(BitmapDescriptorFactory.fromResource(driver))
                 .draggable(true));
     }
-    private void GetOrderDetails(){
-        try {
-            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
-        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
-        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
-        NetworkConsume.getInstance().getAuthAPI().getOrderDetails(Integer.valueOf(orderID)).
-                enqueue(new Callback<DriverAwardedResp>() {
-                    @Override
-                    public void onResponse(Call<DriverAwardedResp> call, Response<DriverAwardedResp> response) {
-                        if (response.isSuccessful()) {
-                            DriverAwardedResp cartOrder = response.body();
-                            for (int i=0; i< cartOrder.getResponse().getOrderDetails().getCartItems().size(); i++){
-                                if (cartOrder.getResponse().getOrderDetails().getCartItems().size() == 0)
-                                {
 
-                                }else {
-                                    list.add(cartOrder.getResponse().getOrderDetails().getCartItems().get(i));
-                                    createMarker(cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getLat(),
-                                            cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getLong(),
-                                            cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
-                                }
-                            }
-                            try {
-                            total_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getAmount())+" "+cartOrder.getResponse().
-                            getOrderDetails().getCurrency());
-                            tip.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getTip()));
-                            final_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getFinalAmount())+" "+cartOrder.getResponse().
-                                    getOrderDetails().getCurrency());
-                            UserNumber = cartOrder.getResponse().getUserInfo().getPhone();
-                            NetworkConsume.getInstance().setDefaults("yes",cartOrder.getResponse().getUserInfo().getFirstName(),DriverOrders.this);
-                            NetworkConsume.getInstance().setDefaults("userId", String.valueOf(cartOrder.getResponse().getUserInfo().getId()),DriverOrders.this);
-//                            createMarker(cartOrder.getResponse().getDriverInfo().getLat(),cartOrder.getResponse().getDriverInfo().getLong(),
-//                                    cartOrder.getResponse().getDriverInfo().getAddress());
-                            createMarker(cartOrder.getResponse().getUserInfo().getLat(),cartOrder.getResponse().getUserInfo().getLong(),
-                                    cartOrder.getResponse().getUserInfo().getAddress(),R.drawable.user_marker);
-                            heading(cartOrder.getResponse().getUserInfo().getLat(),cartOrder.getResponse().getUserInfo().getLong());
-                            DriverDetailedAdapter myAdapter = new DriverDetailedAdapter(DriverOrders.this,list);
-                            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(DriverOrders.this);
-                            recyclerView.setLayoutManager(mLayoutManager);
-                            recyclerView.setItemAnimator(new DefaultItemAnimator());
-                            recyclerView.setAdapter(myAdapter);
-                            NetworkConsume.getInstance().HideProgress();
-
-                            }catch (Exception e){
-                                NetworkConsume.getInstance().HideProgress();
-                                Toast.makeText(DriverOrders.this, "Something Went Wrong!! Details Missing...", Toast.LENGTH_SHORT).show();
-                            }
-                        }else {
-                            NetworkConsume.getInstance().HideProgress();
-                            Gson gson = new Gson();
-                            LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
-                            Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
-                            if (message.getError().getMessage().get(0).equals("Unauthorized access_token")){
-                                SharedPreferences prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
-                                prefs.edit().putString("access_token", "")
-                                        .putString("avatar","")
-                                        .putString("login","").commit();
-
-                                Intent intent = new Intent(DriverOrders.this,  login.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(intent);
-                            }
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onFailure(Call<DriverAwardedResp> call, Throwable t) {
-                        NetworkConsume.getInstance().HideProgress();
-                        Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-        }catch (Exception e){
-            dialog.dismiss();
+    private void setupOrder(){
+        OrderDetail order = CurrentOrder.getInstance().order;
+        if (order != null) {
+            for (CartItem cartItem : order.getCartItems()) {
+                createMarker(cartItem.getLat(), cartItem.getLong(), cartItem.getTitle(), R.drawable.market_marker);
+                list.add(cartItem);
+            }
+            total_amount.setText("" + (float)order.getAmount());
+            tip.setText("" + (float)order.getTip());
+            final_amount.setText("" + (float)order.getFinalAmount());
+            User user = CurrentOrder.getInstance().user;
+            if (user != null) {
+                UserNumber = user.getPhone();
+            }
+            createMarker(order.getLat(), order.getLongField(), "drop off", R.drawable.user_marker);
+            heading(order.getLat(), order.getLongField());
+            DriverDetailedAdapter myAdapter = new DriverDetailedAdapter(DriverOrders.this, list);
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(DriverOrders.this);
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(myAdapter);
         }
     }
+
+//    private void GetOrderDetails(){
+//        try {
+//            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
+//        NetworkConsume.getInstance().setAccessKey("Bearer "+prefs.getString("access_token","12"));
+//        String orderID = NetworkConsume.getInstance().getDefaults("orderId",DriverOrders.this);
+//        NetworkConsume.getInstance().getAuthAPI().getOrderDetails(Integer.valueOf(orderID)).
+//                enqueue(new Callback<DriverAwardedResp>() {
+//                    @Override
+//                    public void onResponse(Call<DriverAwardedResp> call, Response<DriverAwardedResp> response) {
+//                        if (response.isSuccessful()) {
+//                            DriverAwardedResp cartOrder = response.body();
+//                            for (int i=0; i< cartOrder.getResponse().getOrderDetails().getCartItems().size(); i++){
+//                                if (cartOrder.getResponse().getOrderDetails().getCartItems().size() == 0)
+//                                {
+//
+//                                }else {
+//                                    list.add(cartOrder.getResponse().getOrderDetails().getCartItems().get(i));
+//                                    createMarker(cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getLat(),
+//                                            cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getLong(),
+//                                            cartOrder.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
+//                                }
+//                            }
+//                            try {
+//                            total_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getAmount())+" "+cartOrder.getResponse().
+//                            getOrderDetails().getCurrency());
+//                            tip.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getTip()));
+//                            final_amount.setText(new DecimalFormat("##").format(cartOrder.getResponse().getOrderDetails().getFinalAmount())+" "+cartOrder.getResponse().
+//                                    getOrderDetails().getCurrency());
+//                            UserNumber = cartOrder.getResponse().getUserInfo().getPhone();
+//                            NetworkConsume.getInstance().setDefaults("yes",cartOrder.getResponse().getUserInfo().getFirstName(),DriverOrders.this);
+//                            NetworkConsume.getInstance().setDefaults("userId", String.valueOf(cartOrder.getResponse().getUserInfo().getId()),DriverOrders.this);
+////                            createMarker(cartOrder.getResponse().getDriverInfo().getLat(),cartOrder.getResponse().getDriverInfo().getLong(),
+////                                    cartOrder.getResponse().getDriverInfo().getAddress());
+//                            createMarker(cartOrder.getResponse().getUserInfo().getLat(),cartOrder.getResponse().getUserInfo().getLong(),
+//                                    cartOrder.getResponse().getUserInfo().getAddress(),R.drawable.user_marker);
+//                            heading(cartOrder.getResponse().getUserInfo().getLat(),cartOrder.getResponse().getUserInfo().getLong());
+//                            DriverDetailedAdapter myAdapter = new DriverDetailedAdapter(DriverOrders.this,list);
+//                            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(DriverOrders.this);
+//                            recyclerView.setLayoutManager(mLayoutManager);
+//                            recyclerView.setItemAnimator(new DefaultItemAnimator());
+//                            recyclerView.setAdapter(myAdapter);
+//                            NetworkConsume.getInstance().HideProgress();
+//
+//                            }catch (Exception e){
+//                                NetworkConsume.getInstance().HideProgress();
+//                                Toast.makeText(DriverOrders.this, "Something Went Wrong!! Details Missing...", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }else {
+//                            NetworkConsume.getInstance().HideProgress();
+//                            Gson gson = new Gson();
+//                            LoginApiError message=gson.fromJson(response.errorBody().charStream(),LoginApiError.class);
+//                            Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+//                            if (message.getError().getMessage().get(0).equals("Unauthorized access_token")){
+//                                SharedPreferences prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
+//                                prefs.edit().putString("access_token", "")
+//                                        .putString("avatar","")
+//                                        .putString("login","").commit();
+//
+//                                Intent intent = new Intent(DriverOrders.this,  login.class);
+//                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                startActivity(intent);
+//                            }
+//
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<DriverAwardedResp> call, Throwable t) {
+//                        NetworkConsume.getInstance().HideProgress();
+//                        Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+//
+//                    }
+//                });
+//
+//        }catch (Exception e){
+//            dialog.dismiss();
+//        }
+//    }
 
     @Override
     public void onBackPressed() {
@@ -575,7 +614,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 //                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
 //                .draggable(true));
         //Animating the camera
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(9));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
     }
 
@@ -657,7 +696,8 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
 //            getCurrentLocation();
-            GetOrderDetails();
+//            GetOrderDetails();
+            setupOrder();
             // Check the location settings of the user and create the callback to react to the different possibilities
             LocationSettingsRequest.Builder locationSettingsRequestBuilder = new LocationSettingsRequest.Builder()
                     .addLocationRequest(mLocationRequest);

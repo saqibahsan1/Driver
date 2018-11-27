@@ -96,9 +96,13 @@
         </activity>
 
         <activity android:name="com.akhdmny.driver.Activities.Chat"
-            android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait">
         </activity>
+
+        <activity android:name="com.akhdmny.driver.Activities.MessageListActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
         <activity android:name="com.akhdmny.driver.Activities.ParcelActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">

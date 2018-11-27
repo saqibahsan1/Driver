@@ -107,7 +107,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             contentImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (message.getType() == 4){
+                    if (message.getType() == 4) {
                         try {
                             MediaPlayer mediaPlayer = new MediaPlayer();
                             mediaPlayer.setDataSource(message.getBody());
@@ -116,11 +116,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }else if (message.getType() == 3){
+                    } else if (message.getType() == 3) {
 
-                    }else if (message.getType() == 2){
+                    } else if (message.getType() == 2) {
                         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                                Uri.parse("http://maps.google.com/maps?saddr=20.344,34.34&daddr=20.5666,45.345"));
+                                Uri.parse("http://maps.google.com/maps?q=" + message.getBody() + "&mode=b"));
                         mContext.startActivity(intent);
                     }
                 }
@@ -130,11 +130,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         void bind(Message message) {
             this.message = message;
-            if(message.getType() == 1) {
+            if (message.getType() == 1) {
                 messageText.setText(message.getBody());
-            }else if (message.getType() == 3){
+            } else if (message.getType() == 3) {
                 Picasso.get().load(message.getBody()).error(R.drawable.place_holder).fit().into(contentImage);
-            }else if (message.getType() == 4){
+            } else if (message.getType() == 4) {
 //                contentImage.setImageDrawable(R.drawable.);
             }
             timeText.setText(message.getTime());
@@ -147,21 +147,26 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
 
 
-        void setType(int type){
-            if (type == 1){
+        void setType(int type) {
+            if (type == 1) {
                 contentImage.setVisibility(View.GONE);
                 messageText.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 messageText.setVisibility(View.GONE);
                 contentImage.setVisibility(View.VISIBLE);
                 final float scale = mContext.getResources().getDisplayMetrics().density;
                 ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) contentImage.getLayoutParams();
-                if (type == 4){
+                if (type == 4) {
                     params.width = (int) (100 * scale + 0.5f);
                     params.height = (int) (40 * scale + 0.5f);
-                }else {
+                    contentImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.audio_button_image));
+                } else if (type == 3) {
                     params.height = (int) (240 * scale + 0.5f);
                     params.width = (int) (240 * scale + 0.5f);
+                } else if (type == 2) {
+                    params.height = (int) (240 * scale + 0.5f);
+                    params.width = (int) (240 * scale + 0.5f);
+                    contentImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.icons8_marker2));
                 }
                 contentImage.setLayoutParams(params);
             }
@@ -188,9 +193,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             contentImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (message.getType() == 4){
+                    if (message.getType() == 4) {
                         try {
-                            if(mediaPlayer!=null) {
+                            if (mediaPlayer != null) {
                                 mediaPlayer.release();
                             }
                             mediaPlayer = new MediaPlayer();
@@ -201,11 +206,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                             e.printStackTrace();
 
                         }
-                    }else if (message.getType() == 3){
+                    } else if (message.getType() == 3) {
 
-                    }else if (message.getType() == 2){
+                    } else if (message.getType() == 2) {
                         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                                Uri.parse("http://maps.google.com/maps?saddr=20.344,34.34&daddr=20.5666,45.345"));
+                                Uri.parse("http://maps.google.com/maps?q=" + message.getBody() + "&mode=b"));
                         mContext.startActivity(intent);
                     }
                 }
@@ -214,9 +219,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         void bind(Message message) {
             this.message = message;
-            if(message.getType() == 1) {
+            if (message.getType() == 1) {
                 messageText.setText(message.getBody());
-            }else if (message.getType() == 3){
+            } else if (message.getType() == 3) {
                 Picasso.get().load(message.getBody()).error(R.drawable.place_holder).fit().into(contentImage);
             }
             timeText.setText(message.getTime());
@@ -226,21 +231,26 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
 
 
-        void setType(int type){
-            if (type == 1){
+        void setType(int type) {
+            if (type == 1) {
                 contentImage.setVisibility(View.GONE);
                 messageText.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 messageText.setVisibility(View.GONE);
                 contentImage.setVisibility(View.VISIBLE);
                 final float scale = mContext.getResources().getDisplayMetrics().density;
                 ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) contentImage.getLayoutParams();
-                if (type == 4){
+                if (type == 4) {
                     params.width = (int) (100 * scale + 0.5f);
                     params.height = (int) (40 * scale + 0.5f);
-                }else {
+                    contentImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.audio_button_image));
+                } else if (type == 3) {
                     params.height = (int) (240 * scale + 0.5f);
                     params.width = (int) (240 * scale + 0.5f);
+                } else if (type == 2) {
+                    params.height = (int) (240 * scale + 0.5f);
+                    params.width = (int) (240 * scale + 0.5f);
+                    contentImage.setImageDrawable(mContext.getResources().getDrawable(R.drawable.icons8_marker2));
                 }
                 contentImage.setLayoutParams(params);
             }

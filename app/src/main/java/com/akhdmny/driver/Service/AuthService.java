@@ -1,5 +1,6 @@
 package com.akhdmny.driver.Service;
 
+import com.akhdmny.driver.ApiResponse.AcceptModel.AcceptOrderApiModel;
 import com.akhdmny.driver.ApiResponse.AddComplaintResponse;
 import com.akhdmny.driver.ApiResponse.AddToCart;
 import com.akhdmny.driver.ApiResponse.BidResp.SubmitBidResp;
@@ -105,6 +106,9 @@ public interface AuthService {
 
     @GET("/akhdmny/public/api/driver/get-order-detail")
     Call<DriverAwardedResp> getOrderDetails(@Query("order_id") int orderId);
+
+    @GET("/akhdmny/public/api/user/get-order-detail")
+    Call<AcceptOrderApiModel> GetOrderDetails(@Query("order_id") String OrderId);
 
     @GET("/akhdmny/public/api/driver/deliver-order")
     Call<DeliverOrderApi> DeliverOrder(@Query("order_id") int orderId);

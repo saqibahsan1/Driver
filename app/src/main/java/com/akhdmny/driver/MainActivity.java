@@ -38,9 +38,7 @@ import com.akhdmny.driver.Fragments.FragmentNotification;
 import com.akhdmny.driver.Fragments.FragmentOrder;
 import com.akhdmny.driver.Fragments.FragmentHome;
 import com.akhdmny.driver.Fragments.FragmentSettings;
-import com.akhdmny.driver.NetworkManager.Network;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
-import com.akhdmny.driver.Service.TrackerService;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.firebase.database.DataSnapshot;
@@ -208,10 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         clickLIstner();
 
     }
-    private void startTrackerService() {
-       startService(new Intent(MainActivity.this, TrackerService.class));
-        //finish();
-    }
+
 
     @Override
     protected void onResume() {

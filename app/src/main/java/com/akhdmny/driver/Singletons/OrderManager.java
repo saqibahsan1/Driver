@@ -1,5 +1,6 @@
-package com.android.akhdmny.Singletons;
+package com.akhdmny.driver.Singletons;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class OrderManager {
@@ -24,6 +25,13 @@ public class OrderManager {
             return false;
         }else{
             return true;
+        }
+    }
+
+    public void stopObservingOrder(){
+        if (this.observer != null){
+            FirebaseDatabase.getInstance().getReference().removeEventListener(observer);
+            observer = null;
         }
     }
 

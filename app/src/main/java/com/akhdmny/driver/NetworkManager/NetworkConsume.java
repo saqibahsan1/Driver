@@ -178,7 +178,7 @@ public class NetworkConsume {
         SharedPreferences preferences = context.getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
     }
     public String getDefaults(String key, Context context) {
         SharedPreferences preferences = context.getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);

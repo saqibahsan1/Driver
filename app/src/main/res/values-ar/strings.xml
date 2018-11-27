@@ -36,6 +36,7 @@
     <string name="available">متاح</string>
     <string name="Bz">كن مشغول</string>
     <string name="busy">مشغول</string>
+    <string name="blocked">sad</string>
     <string name="status">الحالة :</string>
     <string name="Mobile">التليفون المحمول</string>
     <string name="close">إغلاق الملاحة</string>

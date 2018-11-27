@@ -1,4 +1,4 @@
-package com.android.akhdmny.Singletons;
+package com.akhdmny.driver.Singletons;
 
 public class ActivityTracker {
 

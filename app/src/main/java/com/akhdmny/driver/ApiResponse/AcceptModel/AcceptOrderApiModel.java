@@ -1,7 +1,7 @@
 
-package com.android.akhdmny.ApiResponse.AcceptModel;
+package com.akhdmny.driver.ApiResponse.AcceptModel;
 
-import com.akhdmny.driver.ApiResponse.MyOrderDetails.Response;
+import com.akhdmny.driver.ApiResponse.AcceptModel.Response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
