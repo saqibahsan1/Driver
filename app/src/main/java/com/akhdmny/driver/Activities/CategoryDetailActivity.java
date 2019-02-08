@@ -539,7 +539,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements MediaPl
     public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
-    static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
         private FargmentService.ClickListener clickListener;

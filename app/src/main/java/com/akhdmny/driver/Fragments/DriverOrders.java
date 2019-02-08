@@ -1,6 +1,7 @@
 package com.akhdmny.driver.Fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -8,9 +9,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -23,17 +26,23 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akhdmny.driver.Activities.AcceptOrderActivity;
+import com.akhdmny.driver.Activities.CategoryDetailActivity;
 import com.akhdmny.driver.Activities.Chat;
 import com.akhdmny.driver.Activities.MessageListActivity;
 import com.akhdmny.driver.Adapter.DriverDetailedAdapter;
+import com.akhdmny.driver.Adapter.ImageAdapterCart;
 import com.akhdmny.driver.ApiResponse.AcceptModel.Order;
 import com.akhdmny.driver.ApiResponse.AcceptModel.User;
 import com.akhdmny.driver.ApiResponse.CartInsideResponse;
@@ -74,7 +83,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.llollox.androidtoggleswitch.widgets.ToggleSwitch;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -89,7 +100,8 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener,
         GoogleMap.OnMarkerDragListener,
-        GoogleMap.OnMapLongClickListener {
+        GoogleMap.OnMapLongClickListener,
+        MediaPlayer.OnCompletionListener {
     private static final int PERMISSION_CODE = 99;
     private static final int PERMISSION_CALL = 22;
     private GoogleMap mMap;
@@ -99,10 +111,16 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     private double latitude;
     ArrayList<com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem> list;
     ArrayList<CartInsideResponse> listResponse;
+    private ArrayList<String> photos = new ArrayList<>();
     private GoogleApiClient googleApiClient;
     private String TAG = "gps";
     public static final int REQUEST_CHECK_SETTINGS = 123;
+    AlertDialog alertDialog;
     LocationRequest mLocationRequest;
+    private Runnable mRunnable;
+    private Handler mHandler;
+    SeekBar seekBar;
+    MediaPlayer mediaPlayer;
     int INTERVAL = 1000;
     int FASTEST_INTERVAL = 500;
     @BindView(R.id.toggleButtons)
@@ -150,7 +168,9 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     TextView tvTitle;
 
     String UserNumber = "";
-    String id;;
+    String id;
+    ;
+
     public DriverOrders() {
 
     }
@@ -167,7 +187,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         tvTitle.setText(getString(R.string.Home));
         prefs = getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        id = String.valueOf(prefs.getInt("id",0));
+        id = String.valueOf(prefs.getInt("id", 0));
         list = new ArrayList<>();
         listResponse = new ArrayList<>();
 
@@ -249,7 +269,134 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 callEvent();
             }
         });
+
+        recyclerView.addOnItemTouchListener(new CategoryDetailActivity.RecyclerTouchListener(this, recyclerView,
+                new FargmentService.ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        final AlertDialog.Builder ADD_Cart = new AlertDialog.Builder(DriverOrders.this);
+                        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View viewCart = inflater.inflate(R.layout.remove_cart, null);
+                        ImageView imageView = viewCart.findViewById(R.id.img_Resturaunt);
+                        ImageView PlayAudio = viewCart.findViewById(R.id.PlayAudio);
+                        seekBar = viewCart.findViewById(R.id.seek_bar);
+                        TextView textViewTitle = viewCart.findViewById(R.id.Tv_title);
+                        RecyclerView recyclerViewPopup = viewCart.findViewById(R.id.recycler_view);
+                        recyclerViewPopup.setLayoutManager(new LinearLayoutManager(DriverOrders.this, LinearLayoutManager.HORIZONTAL, false));
+                        recyclerViewPopup.setHasFixedSize(true);
+//                        for (int i =0; i<list.get(position).getImage().size()-1;i++) {
+                        photos.add(list.get(position).getImage());
+
+                        //}
+                        ImageAdapterCart imagesAdapter = new ImageAdapterCart(DriverOrders.this, photos);
+
+                        recyclerViewPopup.setAdapter(imagesAdapter);
+                        Picasso.get().load(list.get(position).getImage()).error(R.drawable.place_holder).into(imageView);
+                        PlayAudio.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (list.get(position).getVoice() == null){
+                                    Toast.makeText(DriverOrders.this, "No Voice Found", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    if(isPlaying()){
+                                        stopPlaying();
+                                    } else {
+                                        startPlaying(list.get(position).getVoice());
+                                    }
+                                }
+                            }
+                        });
+
+                        Button btnRemove = viewCart.findViewById(R.id.buttonRemoveItem);
+                        TextView textDialogMsg = viewCart.findViewById(R.id.textDialog);
+                        TextView textViewAddress = viewCart.findViewById(R.id.TV_Address);
+                        TextView textViewprice = viewCart.findViewById(R.id.textView_Price);
+                        textViewTitle.setText(list.get(position).getTitle());
+                        textViewAddress.setText(list.get(position).getAddress());
+                        textViewprice.setText(list.get(position).getAmount().toString());
+                        textDialogMsg.setText(list.get(position).getDescription());
+                        ADD_Cart.setView(viewCart);
+                        ADD_Cart.setCancelable(true);
+                        alertDialog = ADD_Cart.create();
+                        alertDialog.show();
+
+                        btnRemove.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //  RemoveCartOrderApi(list.get(position).getId());
+                                alertDialog.dismiss();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onLongClick(View view, int position) {
+
+                    }
+                }));
     }
+
+    private boolean isPlaying(){
+        try
+        {
+            return mediaPlayer != null && mediaPlayer.isPlaying();
+        } catch (Exception e){
+            return false;
+        }
+    }
+    private void startPlaying(String source){
+        try {
+            seekBar.setVisibility(View.VISIBLE);
+            mediaPlayer = new MediaPlayer();
+
+            mediaPlayer.setOnCompletionListener(this);
+
+            try {
+                mediaPlayer.setDataSource(source);
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mediaPlayer.start();
+            initializeSeekBar();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    protected void initializeSeekBar(){
+        seekBar.setMax(mediaPlayer.getDuration());
+
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if(mediaPlayer!=null){
+                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                }
+                mHandler.postDelayed(mRunnable,50);
+            }
+        };
+        mHandler.postDelayed(mRunnable,50);
+    }
+
+    private void stopPlaying(){
+
+        if(mediaPlayer != null){
+            try {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                seekBar.setProgress(0);
+                seekBar.setVisibility(View.GONE);
+
+                if(mHandler!=null){
+                    mHandler.removeCallbacks(mRunnable);
+                }
+            } catch (Exception e){ }
+        }
+
+    }
+
     private void requestPermissionForCall() {
 
         if (Build.VERSION.SDK_INT >= 23) {
@@ -257,25 +404,26 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-    private void callEvent(){
+
+    private void callEvent() {
         if (checkCallPermission()) {
             String uri = "tel:" + UserNumber;
             Intent intent = new Intent(Intent.ACTION_CALL);
             intent.setData(Uri.parse(uri));
             startActivity(intent);
-        }else {
+        } else {
             requestPermissionForCall();
         }
 
     }
 
 
-
     private void startTrackerService() {
 //        startService(new Intent(this, TrackerService.class));
         //finish();
     }
-    private void CancelOrderApi(){
+
+    private void CancelOrderApi() {
         OrderDetail order = CurrentOrder.getInstance().order;
         if (order != null) {
             int orderID = CurrentOrder.getInstance().orderId;
@@ -321,7 +469,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void deliverApi(){
+    private void deliverApi() {
         OrderDetail order = CurrentOrder.getInstance().order;
         if (order != null) {
             int orderID = CurrentOrder.getInstance().orderId;
@@ -366,7 +514,8 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
             });
         }
     }
-    protected Marker createMarker(double latitude, double longitude, String title,int driver) {
+
+    protected Marker createMarker(double latitude, double longitude, String title, int driver) {
 
         return mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
@@ -376,16 +525,16 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 .draggable(true));
     }
 
-    private void setupOrder(){
+    private void setupOrder() {
         OrderDetail order = CurrentOrder.getInstance().order;
         if (order != null) {
             for (CartItem cartItem : order.getCartItems()) {
                 createMarker(cartItem.getLat(), cartItem.getLong(), cartItem.getTitle(), R.drawable.market_marker);
                 list.add(cartItem);
             }
-            total_amount.setText("" + (float)order.getAmount());
-            tip.setText("" + (float)order.getTip());
-            final_amount.setText("" + (float)order.getFinalAmount());
+            total_amount.setText("" + (float) order.getAmount());
+            tip.setText("" + (float) order.getTip());
+            final_amount.setText("" + (float) order.getFinalAmount());
             User user = CurrentOrder.getInstance().user;
             if (user != null) {
                 UserNumber = user.getPhone();
@@ -485,17 +634,19 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void heading(double UserLat, double UserLong){
+    private void heading(double UserLat, double UserLong) {
         GPSActivity activity = new GPSActivity(DriverOrders.this);
-        LatLng current = new LatLng(activity.getLatitude(),activity.getLongitude());
-        LatLng UserLoc = new LatLng(UserLat,UserLong);
+        LatLng current = new LatLng(activity.getLatitude(), activity.getLongitude());
+        LatLng UserLoc = new LatLng(UserLat, UserLong);
         double heading = SphericalUtil.computeHeading(current, UserLoc);
-        showDistance(current,UserLoc);
+        showDistance(current, UserLoc);
     }
-    private void showDistance(LatLng a,LatLng b) {
+
+    private void showDistance(LatLng a, LatLng b) {
         double distance = SphericalUtil.computeDistanceBetween(a, b);
-        Log.w("The markers are " , formatNumber(distance) + " apart.");
+        Log.w("The markers are ", formatNumber(distance) + " apart.");
     }
+
     private String formatNumber(double distance) {
         String unit = "m";
         if (distance < 1) {
@@ -538,6 +689,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     };
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -547,14 +699,14 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults.length > 0) {
 
                     boolean finelocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                  //  boolean coarselocation = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    //  boolean coarselocation = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
                     if (finelocation) {
 
                         if (checkPermission())
                             buildGoogleApiClient();
 
-    //                        getCurrentLocation();
+                        //                        getCurrentLocation();
 //                        Toast.makeText(DriverOrders.this, "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(DriverOrders.this, "Permission Denied", Toast.LENGTH_LONG).show();
@@ -566,13 +718,13 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case PERMISSION_CALL:
-                if (grantResults.length>0){
+                if (grantResults.length > 0) {
                     boolean CallResult = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
-                    if (CallResult){
+                    if (CallResult) {
                         if (checkCallPermission())
                             callEvent();
-                    }else {
+                    } else {
                         requestPermissionForCall();
                     }
                 }
@@ -598,7 +750,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     private void moveMap() {
 
 
-    //        getCurrentLocation();
+        //        getCurrentLocation();
         LatLng latLng = new LatLng(latitude, longitude);
         //Adding marker to map
 //        mMap.addMarker(new MarkerOptions()
@@ -648,7 +800,6 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-
 
 
     }
@@ -719,6 +870,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 }, PERMISSION_CODE);
 
     }
+
     public boolean checkPermission() {
 
         int FirstPermissionResult = ContextCompat.checkSelfPermission(DriverOrders.this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -728,12 +880,12 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                 SecondPermissionResult == PackageManager.PERMISSION_GRANTED;
 
     }
-    public boolean checkCallPermission(){
-        int callPerm = ContextCompat.checkSelfPermission(DriverOrders.this,Manifest.permission.CALL_PHONE);
+
+    public boolean checkCallPermission() {
+        int callPerm = ContextCompat.checkSelfPermission(DriverOrders.this, Manifest.permission.CALL_PHONE);
 
         return callPerm == PackageManager.PERMISSION_GRANTED;
     }
-
 
 
     @Override
@@ -780,5 +932,10 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        stopPlaying();
     }
 }
