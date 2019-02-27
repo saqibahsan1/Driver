@@ -16,6 +16,7 @@ import com.akhdmny.driver.ApiResponse.LoginApiResponse;
 import com.akhdmny.driver.ApiResponse.OrdersResponse.GetOrderItemsResp;
 import com.akhdmny.driver.ApiResponse.ParcelApiResponse;
 import com.akhdmny.driver.ApiResponse.RegisterResponse;
+import com.akhdmny.driver.ApiResponse.TransactionPojo.TransactionModel;
 import com.akhdmny.driver.ApiResponse.UpdateDriverLoc;
 import com.akhdmny.driver.ApiResponse.UpdateTokenResponse;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
@@ -59,6 +60,9 @@ public interface AuthService {
     @GET("/akhdmny/public/api/driver/services")
     Call<CategoriesDetailResponse> CatDetails(@Query("category_id") int id, @Query("lat") double lat,@Query("long") double longitude,
                                               @Query("address") String address);
+
+    @GET("/akhdmny/public/api/driver/get-transactions")
+    Call<TransactionModel> Transactions();
 
     @GET("/akhdmny/public/api/driver/get-complains")
     Call<ComplaintHistoryResponse> History();

@@ -22,6 +22,11 @@
             android:icon="@drawable/notification_icon"/>
 
         <item
+            android:id="@+id/transactions"
+            android:title="@string/transaction"
+            android:icon="@android:drawable/ic_menu_agenda"/>
+
+        <item
             android:id="@+id/settings"
             android:title="@string/settings"
             android:icon="@drawable/settings"/>

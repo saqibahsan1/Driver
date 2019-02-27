@@ -1,19 +1,18 @@
 package com.akhdmny.driver;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,44 +20,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.akhdmny.driver.Activities.AcceptOrderActivity;
 import com.akhdmny.driver.Activities.MyCart;
 import com.akhdmny.driver.Activities.Profile;
 import com.akhdmny.driver.ApiResponse.LoginInsideResponse;
-import com.akhdmny.driver.ApiResponse.OrderConfirmation;
-import com.akhdmny.driver.ApiResponse.UpdateTokenResponse;
-import com.akhdmny.driver.ErrorHandling.LoginApiError;
-import com.akhdmny.driver.FireBaseNotification.FCM_service;
+import com.akhdmny.driver.Fragments.DriverOrders;
 import com.akhdmny.driver.Fragments.FragmentComplaints;
 import com.akhdmny.driver.Fragments.FragmentContact;
-import com.akhdmny.driver.Fragments.DriverOrders;
+import com.akhdmny.driver.Fragments.FragmentHome;
 import com.akhdmny.driver.Fragments.FragmentNotification;
 import com.akhdmny.driver.Fragments.FragmentOrder;
-import com.akhdmny.driver.Fragments.FragmentHome;
 import com.akhdmny.driver.Fragments.FragmentSettings;
+import com.akhdmny.driver.Fragments.TransactionFragment;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String AUTH_PREF_KEY = "com.android.akhdmny.authKey";
@@ -81,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle toggle;
     private FragmentNotification fragmentNotification = new FragmentNotification();
     private FragmentHome fragmentHome = new FragmentHome();
-    private DriverOrders fragmentDriverOrders = new DriverOrders();
+    private TransactionFragment transactionFragment = new TransactionFragment();
     private FragmentOrder fragmentOrder = new FragmentOrder();
     private FragmentSettings fragmentSettings = new FragmentSettings();
     private FragmentComplaints fragmentComplaints = new FragmentComplaints();
@@ -113,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
             Device_Width = metrics.widthPixels;
+            FirebaseApp.initializeApp(this);
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
                 String newToken = instanceIdResult.getToken();
                 Log.e("newToken", newToken);
@@ -126,7 +114,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             });
 
-        }catch (Exception e){}
+        }catch (Exception e){
+            Log.e("error",e.getMessage());
+        }
 
         tvTitle = (TextView) toolbar.findViewById(R.id.tvTitle);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -339,6 +329,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 tvTitle.setText(R.string.complaint);
                 cartButton.setVisibility(View.GONE);
                 break;
+            case R.id.transactions:
+                setFragment(transactionFragment);
+                tvTitle.setText(R.string.complaint);
+                cartButton.setVisibility(View.GONE);
+                break;
             case R.id.notifications:
                 setFragment(fragmentNotification);
                 tvTitle.setText(R.string.notifications);
@@ -355,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
     private void setFragment(Fragment fragment){
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
