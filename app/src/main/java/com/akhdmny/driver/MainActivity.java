@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.transactions:
                 setFragment(transactionFragment);
-                tvTitle.setText(R.string.complaint);
+                tvTitle.setText(R.string.transaction);
                 cartButton.setVisibility(View.GONE);
                 break;
             case R.id.notifications:

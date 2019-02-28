@@ -1,18 +1,17 @@
 
-package com.akhdmny.driver.ApiResponse;
+package com.akhdmny.driver.ApiResponse.TimeOut;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ComplaintHistoryResponse {
+public class OrderTimeOut {
 
     @SerializedName("status")
     @Expose
     private Boolean status;
     @SerializedName("response")
     @Expose
-    private List<ComplaintHistoryInsideResponse> response = null;
+    private Response response;
     @SerializedName("error")
     @Expose
     private Object error;
@@ -25,11 +24,11 @@ public class ComplaintHistoryResponse {
         this.status = status;
     }
 
-    public List<ComplaintHistoryInsideResponse> getResponse() {
+    public Response getResponse() {
         return response;
     }
 
-    public void setResponse(List<ComplaintHistoryInsideResponse> response) {
+    public void setResponse(Response response) {
         this.response = response;
     }
 

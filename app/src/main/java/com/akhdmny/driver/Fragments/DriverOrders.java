@@ -48,12 +48,14 @@ import com.akhdmny.driver.ApiResponse.AcceptModel.User;
 import com.akhdmny.driver.ApiResponse.CartInsideResponse;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
 import com.akhdmny.driver.ApiResponse.MyOrderDetails.OrderDetail;
+import com.akhdmny.driver.ApiResponse.UpdateFbmodel;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
 import com.akhdmny.driver.ApiResponse.cancelOrder.CancelOrderResponse;
 import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.MainActivity;
+import com.akhdmny.driver.NetworkManager.Network;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
 import com.akhdmny.driver.Singletons.CurrentOrder;
@@ -78,8 +80,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.llollox.androidtoggleswitch.widgets.ToggleSwitch;
@@ -323,7 +328,7 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                         btnRemove.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //  RemoveCartOrderApi(list.get(position).getId());
+                                getToken();
                                 alertDialog.dismiss();
                             }
                         });
@@ -334,6 +339,50 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
 
                     }
                 }));
+    }
+    private void getToken(){
+        String orderId = NetworkConsume.getInstance().getDefaults("orderId", DriverOrders.this);
+        String id = NetworkConsume.getInstance().getDefaults("id", DriverOrders.this);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token").child(orderId).child("token");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    if (dataSnapshot.getValue() != null) {
+                        try {
+                            Log.e("TAG", "" + dataSnapshot.getValue());
+                            UpdateFBApi(""+dataSnapshot.getValue(),orderId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.e("TAG", " it's null.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    private void UpdateFBApi(String token,String orderId){
+        Network.getInstance().getAuthAPINew().updateFirebase(token,orderId,"Item purchased","has been purchased by your driver").enqueue(new Callback<UpdateFbmodel>() {
+            @Override
+            public void onResponse(Call<UpdateFbmodel> call, Response<UpdateFbmodel> response) {
+                if (response.isSuccessful()){
+                    Toast.makeText(DriverOrders.this, "Order has been done!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpdateFbmodel> call, Throwable t) {
+
+            }
+        });
     }
 
     private boolean isPlaying(){

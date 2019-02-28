@@ -123,4 +123,6 @@
     <string name="currency">Currency</string>
     <string name="_amount">الإجمالي</string>
     <string name="transaction">المعاملات</string>
+    <string name="reply">Reply</string>
+    <string name="order_cancel">تم إلغاء الطلب</string>
 </resources>

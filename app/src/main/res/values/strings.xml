@@ -123,5 +123,7 @@
     <string name="currency">Currency</string>
     <string name="_amount">Amount</string>
     <string name="transaction">Transactions</string>
+    <string name="reply">Reply</string>
+    <string name="order_cancel">Order has been Canceled</string>
 
 </resources>

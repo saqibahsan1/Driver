@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -34,18 +35,25 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akhdmny.driver.Adapter.BottomSheetAdapter;
 import com.akhdmny.driver.Adapter.ImageAdapterCart;
 import com.akhdmny.driver.Adapter.MyCartAdapter;
 import com.akhdmny.driver.ApiResponse.BidResp.SubmitBidResp;
+import com.akhdmny.driver.ApiResponse.OrdersResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.OrdersResponse.GetOrderItemsResp;
-import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
+import com.akhdmny.driver.ApiResponse.TimeOut.OrderTimeOut;
+import com.akhdmny.driver.ApiResponse.UpdateFbmodel;
 import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
+import com.akhdmny.driver.Fragments.CancelFragment;
 import com.akhdmny.driver.Fragments.DriverOrders;
 import com.akhdmny.driver.Fragments.FargmentService;
 import com.akhdmny.driver.MainActivity;
+import com.akhdmny.driver.NetworkManager.Network;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
+import com.akhdmny.driver.Singletons.CurrentOrder;
+import com.akhdmny.driver.Utils.GPSActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -66,8 +74,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.llollox.androidtoggleswitch.widgets.ToggleSwitch;
 import com.squareup.picasso.Picasso;
@@ -133,6 +144,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
     AlertDialog alertDialog;
     int INTERVAL = 1000;
     int FASTEST_INTERVAL = 500;
+    GPSActivity gpsActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -145,6 +157,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         toogleButtons.setCheckedPosition(0);
+        gpsActivity = new GPSActivity(AcceptOrderActivity.this);
         toogleButtons.setOnChangeListener(new ToggleSwitch.OnChangeListener() {
             @Override
             public void onToggleSwitchChanged(int i) {
@@ -158,15 +171,16 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
             }
         });
 
-        CancelOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
-                        child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-
-
-                ref.child("status").setValue(6);
-            }
+        CancelOrder.setOnClickListener(v -> {
+            CancelFragment cancelFragment = new CancelFragment(new BottomSheetAdapter.DetectReasonSelected() {
+                @Override
+                public void onSelection(String reason) {
+                    CancelOrder(reason);
+                }
+            });
+            FragmentManager fm =getSupportFragmentManager();
+            cancelFragment.show(fm,cancelFragment.getTag());
+//            finish();
         });
 
         mMapView.getMapAsync(this);
@@ -202,6 +216,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
         itemTouchLister();
     }
 
+
     private void getOrdersApi(){
         try {
 
@@ -216,18 +231,18 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                     if (response.isSuccessful()){
                         GetOrderItemsResp getOrderItemsResp = response.body();
                         for (int i = 0; i<getOrderItemsResp.getResponse().getOrderDetails().getCartItems().size(); i++){
-                            if (getOrderItemsResp.getResponse().getOrderDetails().getCartItems().size() == 0)
+                            if (getOrderItemsResp.getResponse().getOrderDetails().getCartItems().size() != 0)
                             {
-
-                            }else {
+                                if (getOrderItemsResp.getResponse().getOrderDetails().getIsBid() ==1){
+                                    et_bid.setVisibility(View.GONE);
+                                    CurrentOrder.getInstance().finalAmount = Integer.parseInt(new DecimalFormat("##").format(getOrderItemsResp.getResponse().getOrderDetails().getAmount()));
+                                }else {
+                                    et_bid.setVisibility(View.VISIBLE);
+                                }
                                 list.add(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i));
                                 createMarker(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getLat(),
                                         getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getLong(),
                                         getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
-
-//                                createMarker(getOrderItemsResp.getResponse().getOrderDetails().getToLat(),
-//                                        getOrderItemsResp.getResponse().getOrderDetails().getToLong(),
-//                                        getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getAddress(),R.drawable.market_marker);
                                 MyCartAdapter myAdapter = new MyCartAdapter(AcceptOrderActivity.this,list);
                                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                                 recyclerView.setLayoutManager(mLayoutManager);
@@ -270,6 +285,40 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
     public void onBackPressed() {
 
     }
+    private void CancelOrder(String reason) {
+        NetworkConsume.getInstance().ShowProgress(AcceptOrderActivity.this);
+
+        NetworkConsume.getInstance().setAccessKey("Bearer " + prefs.getString("access_token", "12"));
+        String orderId = NetworkConsume.getInstance().getDefaults("orderId", AcceptOrderActivity.this);
+        NetworkConsume.getInstance().getAuthAPI().cancelOrderApi(orderId,reason).enqueue(new Callback<OrderTimeOut>() {
+            @Override
+            public void onResponse(Call<OrderTimeOut> call, Response<OrderTimeOut> response) {
+                if (response.isSuccessful()) {
+                    OrderTimeOut timeOut = response.body();
+                    NetworkConsume.getInstance()
+                            .SnackBarSucccess(OrderBidScreen,AcceptOrderActivity.this,R.string.order_cancel);
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                            child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+                    ref.child("status").setValue(6);
+                    startActivity(new Intent(AcceptOrderActivity.this,MainActivity.class));
+                    finish();
+                    NetworkConsume.getInstance().HideProgress();
+                } else {
+                    NetworkConsume.getInstance().HideProgress();
+                    Gson gson = new Gson();
+                    LoginApiError message = gson.fromJson(response.errorBody().charStream(), LoginApiError.class);
+                    Toast.makeText(AcceptOrderActivity.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderTimeOut> call, Throwable t) {
+                Toast.makeText(AcceptOrderActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                NetworkConsume.getInstance().HideProgress();
+            }
+        });
+    }
+
 
     protected Marker createMarker(double latitude, double longitude, String title, int driver) {
 
@@ -406,10 +455,10 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
     }
 
 
-    private void bidSubmitApi(){
+    private void bidSubmitApi(String bid){
         NetworkConsume.getInstance().ShowProgress(AcceptOrderActivity.this);
         String orderID = NetworkConsume.getInstance().getDefaults("orderId",AcceptOrderActivity.this);
-        NetworkConsume.getInstance().getAuthAPI().SubmitBid(Integer.parseInt(orderID), Integer.parseInt(et_bid.getText().toString())).enqueue(new Callback<SubmitBidResp>() {
+        NetworkConsume.getInstance().getAuthAPI().SubmitBid(Integer.parseInt(orderID), bid,gpsActivity.getLatitude(),gpsActivity.getLongitude()).enqueue(new Callback<SubmitBidResp>() {
             @Override
             public void onResponse(Call<SubmitBidResp> call, Response<SubmitBidResp> response) {
                 if (response.isSuccessful()){
@@ -437,10 +486,14 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
         confirmOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (et_bid.getText().toString().equals("")){
+                if (et_bid.getVisibility() == View.VISIBLE){
+                    if (et_bid.getText().toString().equals("")) {
                     Toast.makeText(AcceptOrderActivity.this, "Please enter the Bid", Toast.LENGTH_SHORT).show();
+                    }else {
+                        bidSubmitApi(et_bid.getText().toString());
+                    }
                 }else {
-                    bidSubmitApi();
+                    bidSubmitApi(String.valueOf(CurrentOrder.getInstance().finalAmount));
                 }
             }
         });
@@ -498,7 +551,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                         btnRemove.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                              //  RemoveCartOrderApi(list.get(position).getId());
+                              getToken();
                                 alertDialog.dismiss();
                             }
                         });
@@ -510,6 +563,51 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                     }
                 }));
     }
+    private void getToken(){
+        String orderId = NetworkConsume.getInstance().getDefaults("orderId", AcceptOrderActivity.this);
+        String id = String.valueOf(prefs.getInt("id",1));
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token").child(id).child("token");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    if (dataSnapshot.getValue() != null) {
+                        try {
+                            Log.e("TAG", "" + dataSnapshot.getValue());
+                            UpdateFBApi(""+dataSnapshot.getValue(),orderId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.e("TAG", " it's null.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    private void UpdateFBApi(String token,String orderId){
+        Network.getInstance().getAuthAPINew().updateFirebase(token,orderId,"Item purchased","has been purchased by your driver").enqueue(new Callback<UpdateFbmodel>() {
+            @Override
+            public void onResponse(Call<UpdateFbmodel> call, Response<UpdateFbmodel> response) {
+                if (response.isSuccessful()){
+                    Toast.makeText(AcceptOrderActivity.this, "Order has been done!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpdateFbmodel> call, Throwable t) {
+
+            }
+        });
+    }
+
     private boolean isPlaying(){
         try
         {

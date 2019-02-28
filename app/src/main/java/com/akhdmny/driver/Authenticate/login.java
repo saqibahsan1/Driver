@@ -1,6 +1,7 @@
 package com.akhdmny.driver.Authenticate;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,11 +23,14 @@ import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
 import com.akhdmny.driver.Requests.LoginRequest;
+import com.akhdmny.driver.Service.TrackerService;
 import com.akhdmny.driver.Utils.UserDetails;
 import com.akhdmny.driver.Utils.Validator;
 import com.google.gson.Gson;
 import com.hbb20.CountryCodePicker;
 import com.victor.loading.rotate.RotateLoading;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,10 +70,29 @@ public class login extends AppCompatActivity {
         ButterKnife.bind(this);
         ClickEvent();
 
+
     }
 
+    private void stopService(){
+
+        Intent intent = new Intent(login.this, TrackerService.class);
+        Objects.requireNonNull(login.this).stopService(intent);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void ClickEvent(){
         mActivity = this;
+        if (isMyServiceRunning(TrackerService.class)){
+            stopService();
+        }
         ccp_getFullNumber.registerCarrierNumberEditText(et_Mobile);
         eye_icon.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -122,47 +123,58 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         preferences = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         id = String.valueOf(preferences.getInt("id", 0));
         myRef = FirebaseDatabase.getInstance().getReference().child("Token").child(id).child("status");
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Object status = dataSnapshot.getValue();
-                if (status != null) {
-                    switch (status.toString()) {
-                        case "0":
-                            buttonStatus.setBackgroundColor(getResources().getColor(R.color.Red));
-                            buttonStatus.setText(R.string.Bz);
-                            titleBar.setText(R.string.available);
-                            statusColorImg.setBackground(getResources().getDrawable(R.drawable.green_dot));
-                            startTrackerService();
-                            break;
-                        case "1":
-                            buttonStatus.setBackgroundColor(getResources().getColor(R.color.green));
-                            buttonStatus.setText(R.string.online);
-                            titleBar.setText(R.string.busy);
-                            statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
-                            OrderManager.getInstance().stopObservingOrder();
-                            break;
-                        case "2":
-                            startTrackerService();
-                            break;
-                        case "3":
-                            buttonStatus.setVisibility(View.INVISIBLE);
-                            titleBar.setText(R.string.blocked);
-                            statusColorImg.setBackground(getResources().getDrawable(R.drawable.reddot_dash));
-                            OrderManager.getInstance().stopObservingOrder();
-                            break;
-                        default:
 
-                            break;
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Object status = dataSnapshot.getValue();
+                    try {
+                        if (status != null) {
+                            switch (status.toString()) {
+                                case "0":
+                                try {
+
+                                        buttonStatus.setBackgroundColor(getActivity().getResources().getColor(R.color.Red));
+                                        buttonStatus.setText(R.string.Bz);
+                                        titleBar.setText(R.string.available);
+                                        statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.green_dot));
+                                        startTrackerService();
+                                        break;
+                                } catch (Resources.NotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                case "1":
+                                    buttonStatus.setBackgroundColor(getActivity().getResources().getColor(R.color.green));
+                                    buttonStatus.setText(R.string.online);
+                                    titleBar.setText(R.string.busy);
+                                    statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.reddot_dash));
+                                    OrderManager.getInstance().stopObservingOrder();
+                                    break;
+                                case "2":
+                                    startTrackerService();
+                                    break;
+                                case "3":
+                                    buttonStatus.setVisibility(View.INVISIBLE);
+                                    titleBar.setText(R.string.blocked);
+                                    statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.reddot_dash));
+                                    OrderManager.getInstance().stopObservingOrder();
+                                    break;
+                                default:
+
+                                    break;
+                            }
+                        }
+                    } catch (Resources.NotFoundException e) {
+                        e.printStackTrace();
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+
 //        myRef.addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -310,7 +322,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     private void startTrackerService() {
         if (!OrderManager.getInstance().isObserverRunning()){
             Intent intent = new Intent(getActivity(), TrackerService.class);
-            getActivity().startService(intent);
+            Objects.requireNonNull(getActivity()).startService(intent);
         }
     }
 
@@ -393,7 +405,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
             //Getting longitude and latitude
             longitude = location.getLongitude();
             latitude = location.getLatitude();
-            mMap.setMyLocationEnabled(true);
+
             //moving the map to location
             moveMap();
         }

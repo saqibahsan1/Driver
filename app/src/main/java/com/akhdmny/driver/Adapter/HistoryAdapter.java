@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.akhdmny.driver.ApiResponse.ComplaintHistoryInsideResponse;
+import com.akhdmny.driver.ApiResponse.ComplainHistory.Response;
 import com.akhdmny.driver.R;
 
 import java.util.ArrayList;
@@ -18,9 +18,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private Context mCtx;
 
     //we are storing all the products in a list
-    private ArrayList<ComplaintHistoryInsideResponse> historyInsideResponses;
+    private ArrayList<Response> historyInsideResponses;
 
-    public HistoryAdapter(Context mCtx, ArrayList<ComplaintHistoryInsideResponse> productList) {
+    public HistoryAdapter(Context mCtx, ArrayList<Response> productList) {
         this.mCtx = mCtx;
         this.historyInsideResponses = productList;
     }
@@ -36,11 +36,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ComplaintHistoryInsideResponse product = historyInsideResponses.get(position);
+        Response product = historyInsideResponses.get(position);
 
         //binding the data with the viewholder views
         holder.textViewTitle.setText(product.getTitle());
-        holder.Tv_Date.setText(String.valueOf(product.getDate()));
+        holder.Tv_Date.setText(String.valueOf(product.getCreatedAt()));
     }
 
 

@@ -15,6 +15,7 @@ public class CurrentOrder {
     public int orderId;
     public int userId;
     public int driverId;
+    public int finalAmount;
 
 
     public static CurrentOrder getInstance(){

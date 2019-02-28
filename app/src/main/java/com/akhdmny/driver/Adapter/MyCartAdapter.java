@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.akhdmny.driver.ApiResponse.Cartitem;
-import com.akhdmny.driver.ApiResponse.Cartitem;
-import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
+import com.akhdmny.driver.ApiResponse.OrdersResponse.CartItem;
 import com.akhdmny.driver.R;
 import com.squareup.picasso.Picasso;
 

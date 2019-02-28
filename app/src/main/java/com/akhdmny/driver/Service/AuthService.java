@@ -5,22 +5,25 @@ import com.akhdmny.driver.ApiResponse.AddComplaintResponse;
 import com.akhdmny.driver.ApiResponse.AddToCart;
 import com.akhdmny.driver.ApiResponse.BidResp.SubmitBidResp;
 import com.akhdmny.driver.ApiResponse.CartOrder;
+import com.akhdmny.driver.ApiResponse.ComplainHistory.ComplaintHistoryResponse;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
 import com.akhdmny.driver.ApiResponse.FourSquare;
 import com.akhdmny.driver.ApiResponse.MyOrderDetails.MyOrders;
 import com.akhdmny.driver.ApiResponse.OrderConfirmation;
 import com.akhdmny.driver.ApiResponse.CategoriesDetailResponse;
 import com.akhdmny.driver.ApiResponse.CategoriesResponse;
-import com.akhdmny.driver.ApiResponse.ComplaintHistoryResponse;
 import com.akhdmny.driver.ApiResponse.LoginApiResponse;
 import com.akhdmny.driver.ApiResponse.OrdersResponse.GetOrderItemsResp;
 import com.akhdmny.driver.ApiResponse.ParcelApiResponse;
 import com.akhdmny.driver.ApiResponse.RegisterResponse;
+import com.akhdmny.driver.ApiResponse.TimeOut.OrderTimeOut;
 import com.akhdmny.driver.ApiResponse.TransactionPojo.TransactionModel;
 import com.akhdmny.driver.ApiResponse.UpdateDriverLoc;
+import com.akhdmny.driver.ApiResponse.UpdateFbmodel;
 import com.akhdmny.driver.ApiResponse.UpdateTokenResponse;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
 import com.akhdmny.driver.ApiResponse.cancelOrder.CancelOrderResponse;
+import com.akhdmny.driver.Models.CancelReasonModel;
 import com.akhdmny.driver.Requests.LoginRequest;
 import com.akhdmny.driver.Requests.ProfileResponse;
 import com.akhdmny.driver.Requests.SignInRequest;
@@ -73,8 +76,14 @@ public interface AuthService {
     @GET("/akhdmny/public/api/driver/order/request")
     Call<OrderConfirmation> OrderRequest(@Query("lat") double lat,@Query("long") double longitude);
 
+    @GET("/akhdmny/public/api/driver/cancel-reasons")
+    Call<CancelReasonModel> cancelApi();
+
+    @GET("/akhdmny/public/api/driver/cancel-order")
+    Call<OrderTimeOut> cancelOrderApi(@Query("order_id") String orderId, @Query("cancel_reason") String cancelReason);
+
     @Multipart
-    @POST("/akhdmny/public//api/user/submit-complain")
+    @POST("/akhdmny/public/api/driver/submit-complain")
     Call<AddComplaintResponse> AddComplaint(@Part("message") RequestBody description, @Part("title") RequestBody title,
                                             @Part MultipartBody.Part[] Images, @Part MultipartBody.Part Sound);
     @Multipart
@@ -102,6 +111,10 @@ public interface AuthService {
     @GET("/updateToken")
     Call<UpdateTokenResponse> Token(@Query("id") int id, @Query("token") String token);
 
+    @GET("/sendCustomNotification")
+    Call<UpdateFbmodel> updateFirebase(@Query("token") String token, @Query("order_id") String order_id,
+                                       @Query("title") String title, @Query("body") String body);
+
     @GET("/akhdmny/public/api/driver/get-order-items")
     Call<GetOrderItemsResp> getOrderItems(@Query("order_id") int orderId);
 
@@ -121,7 +134,7 @@ public interface AuthService {
     Call<CancelOrderResponse> CancelOrderApi(@Query("order_id") int orderId);
 
     @GET("/akhdmny/public/api/driver/submit-bid")
-    Call<SubmitBidResp> SubmitBid(@Query("order_id") int orderId, @Query("bid") int bid);
+    Call<SubmitBidResp> SubmitBid(@Query("order_id") int orderId, @Query("bid") String bid, @Query("lat") double lat, @Query("long") double longitude);
 
     @GET("/updateGeofireLocation")
     Call<UpdateDriverLoc> DriverLoc(@Query("id") int id, @Query("lat") double lat, @Query("long") double longitude);

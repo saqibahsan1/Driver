@@ -33,8 +33,8 @@ import android.widget.Toast;
 import com.akhdmny.driver.Adapter.HistoryAdapter;
 import com.akhdmny.driver.Adapter.ImagesAdapter;
 import com.akhdmny.driver.ApiResponse.AddComplaintResponse;
-import com.akhdmny.driver.ApiResponse.ComplaintHistoryInsideResponse;
-import com.akhdmny.driver.ApiResponse.ComplaintHistoryResponse;
+import com.akhdmny.driver.ApiResponse.ComplainHistory.ComplaintHistoryResponse;
+import com.akhdmny.driver.ApiResponse.ComplainHistory.ComplaintReply;
 import com.akhdmny.driver.Authenticate.login;
 import com.akhdmny.driver.ErrorHandling.LoginApiError;
 import com.akhdmny.driver.MainActivity;
@@ -119,7 +119,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
     SeekBar seek_bar;
 
     SeekBar seek_barHistory;
-
+    ArrayList<ComplaintReply> complaintReplies;
 
     private boolean trigger = false;
     AlertDialog levelDialog;
@@ -127,7 +127,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
     private ArrayList<File> photos = new ArrayList<>();
     SharedPreferences prefs;
     SpotsDialog dialog;
-    ArrayList<ComplaintHistoryInsideResponse> list;
+    ArrayList<com.akhdmny.driver.ApiResponse.ComplainHistory.Response> list;
     android.app.AlertDialog alertDialog;
     View historyItemView;
     ImageView Audio;
@@ -155,6 +155,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                     historyLayout.setVisibility(View.GONE);
                     ComplaintLayout.setVisibility(View.VISIBLE);
                 }else {
+                    complaintReplies = new ArrayList<>();
                     list = new ArrayList<>();
                     historyLayout.setVisibility(View.VISIBLE);
                     ComplaintLayout.setVisibility(View.GONE);
@@ -175,6 +176,7 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                 ProgressBar progressBar = historyItemView.findViewById(R.id.progress);
                 progressBar.setVisibility(View.VISIBLE);
                 TextView msg = historyItemView.findViewById(R.id.Tv_msg);
+                TextView reply = historyItemView.findViewById(R.id.reply);
                 textViewTitle.setText(list.get(position).getTitle());
                 ImageView imageView = historyItemView.findViewById(R.id.HistoryImage);
                 Audio = historyItemView.findViewById(R.id.PlayAudio);
@@ -211,7 +213,10 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
                         }
                     }
                 });
-                msg.setText(list.get(position).getDescription());
+                msg.setText(list.get(position).getMessage());
+                if (complaintReplies.size() !=0) {
+                    reply.setText(complaintReplies.get(position).getReplyMessage());
+                }
                 if (list.get(position).getImage() != null) {
                     Picasso.get().load(list.get(position).getImage()).into(imageView, new com.squareup.picasso.Callback() {
                         @Override
@@ -221,9 +226,11 @@ public class FragmentComplaints extends Fragment implements MediaPlayer.OnComple
 
                         @Override
                         public void onError(Exception e) {
-
+                            progressBar.setVisibility(View.GONE);
                         }
                     });
+                }else {
+                    progressBar.setVisibility(View.GONE);
                 }
                 history.setView(historyItemView);
                 history.setCancelable(true);

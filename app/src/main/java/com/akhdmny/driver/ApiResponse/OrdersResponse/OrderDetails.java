@@ -2,8 +2,6 @@
 package com.akhdmny.driver.ApiResponse.OrdersResponse;
 
 import java.util.List;
-
-import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -27,30 +25,15 @@ public class OrderDetails {
     @SerializedName("final_amount")
     @Expose
     private Double finalAmount;
-
-    public Double getToLat() {
-        return toLat;
-    }
-
-    public void setToLat(Double toLat) {
-        this.toLat = toLat;
-    }
-
-    public Double getToLong() {
-        return toLong;
-    }
-
-    public void setToLong(Double toLong) {
-        this.toLong = toLong;
-    }
-
     @SerializedName("lat")
     @Expose
-    private Double toLat;
+    private Double lat;
     @SerializedName("long")
     @Expose
-    private Double toLong;
-
+    private Double _long;
+    @SerializedName("is_bid")
+    @Expose
+    private Integer isBid;
 
     public String getCurrency() {
         return currency;
@@ -98,6 +81,30 @@ public class OrderDetails {
 
     public void setFinalAmount(Double finalAmount) {
         this.finalAmount = finalAmount;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLong() {
+        return _long;
+    }
+
+    public void setLong(Double _long) {
+        this._long = _long;
+    }
+
+    public Integer getIsBid() {
+        return isBid;
+    }
+
+    public void setIsBid(Integer isBid) {
+        this.isBid = isBid;
     }
 
 }
