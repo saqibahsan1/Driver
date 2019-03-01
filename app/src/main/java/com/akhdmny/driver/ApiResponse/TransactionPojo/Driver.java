@@ -6,21 +6,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class Driver {
 
-    @SerializedName("id")
-    @Expose
-    private Integer id;
-    @SerializedName("email")
-    @Expose
-    private String email;
     @SerializedName("name")
     @Expose
     private String name;
-    @SerializedName("first_name")
-    @Expose
-    private String firstName;
-    @SerializedName("last_name")
-    @Expose
-    private String lastName;
     @SerializedName("phone")
     @Expose
     private String phone;
@@ -29,47 +17,76 @@ public class Driver {
     private String address;
     @SerializedName("avatar")
     @Expose
-    private Object avatar;
-    @SerializedName("gender")
+    private String avatar;
+    @SerializedName("car_color")
     @Expose
-    private String gender;
-    @SerializedName("is_online")
+    private String carColor;
+    @SerializedName("car_no")
     @Expose
-    private Integer isOnline;
-    @SerializedName("last_login")
+    private String carNo;
+    @SerializedName("car_model")
     @Expose
-    private String lastLogin;
-    @SerializedName("access_token")
+    private Integer carModel;
+    @SerializedName("car_company")
     @Expose
-    private String accessToken;
-    @SerializedName("country")
+    private String carCompany;
+    @SerializedName("rating")
     @Expose
-    private String country;
+    private String rating;
+    @SerializedName("bank")
+    @Expose
+    private Object bank;
+    @SerializedName("account_no")
+    @Expose
+    private Object accountNo;
+    @SerializedName("IsBusy")
+    @Expose
+    private Object isBusy;
+    @SerializedName("balance")
+    @Expose
+    private String balance;
+    @SerializedName("Notes")
+    @Expose
+    private Object notes;
+    @SerializedName("NationalityID")
+    @Expose
+    private Object nationalityID;
+    @SerializedName("DRI_National_URL")
+    @Expose
+    private Object dRINationalURL;
+    @SerializedName("DRI_Car_URL")
+    @Expose
+    private Object dRICarURL;
+    @SerializedName("DRI_License_URL")
+    @Expose
+    private Object dRILicenseURL;
+    @SerializedName("AcceptPartnerOrder")
+    @Expose
+    private Object acceptPartnerOrder;
     @SerializedName("lat")
     @Expose
-    private Integer lat;
+    private Double lat;
     @SerializedName("long")
     @Expose
-    private Integer _long;
-    @SerializedName("status")
+    private Double _long;
+    @SerializedName("nationality")
     @Expose
-    private Integer status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    private Object nationality;
+    @SerializedName("front_car_photo")
+    @Expose
+    private Object frontCarPhoto;
+    @SerializedName("back_car_photo")
+    @Expose
+    private Object backCarPhoto;
+    @SerializedName("id_card_photo")
+    @Expose
+    private Object idCardPhoto;
+    @SerializedName("driver_license_photo")
+    @Expose
+    private Object driverLicensePhoto;
+    @SerializedName("car_registration_photo")
+    @Expose
+    private Object carRegistrationPhoto;
 
     public String getName() {
         return name;
@@ -77,22 +94,6 @@ public class Driver {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getPhone() {
@@ -111,76 +112,196 @@ public class Driver {
         this.address = address;
     }
 
-    public Object getAvatar() {
+    public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(Object avatar) {
+    public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
 
-    public String getGender() {
-        return gender;
+    public String getCarColor() {
+        return carColor;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setCarColor(String carColor) {
+        this.carColor = carColor;
     }
 
-    public Integer getIsOnline() {
-        return isOnline;
+    public String getCarNo() {
+        return carNo;
     }
 
-    public void setIsOnline(Integer isOnline) {
-        this.isOnline = isOnline;
+    public void setCarNo(String carNo) {
+        this.carNo = carNo;
     }
 
-    public String getLastLogin() {
-        return lastLogin;
+    public Integer getCarModel() {
+        return carModel;
     }
 
-    public void setLastLogin(String lastLogin) {
-        this.lastLogin = lastLogin;
+    public void setCarModel(Integer carModel) {
+        this.carModel = carModel;
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getCarCompany() {
+        return carCompany;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setCarCompany(String carCompany) {
+        this.carCompany = carCompany;
     }
 
-    public String getCountry() {
-        return country;
+    public String getRating() {
+        return rating;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setRating(String rating) {
+        this.rating = rating;
     }
 
-    public Integer getLat() {
+    public Object getBank() {
+        return bank;
+    }
+
+    public void setBank(Object bank) {
+        this.bank = bank;
+    }
+
+    public Object getAccountNo() {
+        return accountNo;
+    }
+
+    public void setAccountNo(Object accountNo) {
+        this.accountNo = accountNo;
+    }
+
+    public Object getIsBusy() {
+        return isBusy;
+    }
+
+    public void setIsBusy(Object isBusy) {
+        this.isBusy = isBusy;
+    }
+
+    public String getBalance() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
+    }
+
+    public Object getNotes() {
+        return notes;
+    }
+
+    public void setNotes(Object notes) {
+        this.notes = notes;
+    }
+
+    public Object getNationalityID() {
+        return nationalityID;
+    }
+
+    public void setNationalityID(Object nationalityID) {
+        this.nationalityID = nationalityID;
+    }
+
+    public Object getDRINationalURL() {
+        return dRINationalURL;
+    }
+
+    public void setDRINationalURL(Object dRINationalURL) {
+        this.dRINationalURL = dRINationalURL;
+    }
+
+    public Object getDRICarURL() {
+        return dRICarURL;
+    }
+
+    public void setDRICarURL(Object dRICarURL) {
+        this.dRICarURL = dRICarURL;
+    }
+
+    public Object getDRILicenseURL() {
+        return dRILicenseURL;
+    }
+
+    public void setDRILicenseURL(Object dRILicenseURL) {
+        this.dRILicenseURL = dRILicenseURL;
+    }
+
+    public Object getAcceptPartnerOrder() {
+        return acceptPartnerOrder;
+    }
+
+    public void setAcceptPartnerOrder(Object acceptPartnerOrder) {
+        this.acceptPartnerOrder = acceptPartnerOrder;
+    }
+
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(Integer lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public Integer getLong() {
+    public Double getLong() {
         return _long;
     }
 
-    public void setLong(Integer _long) {
+    public void setLong(Double _long) {
         this._long = _long;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Object getNationality() {
+        return nationality;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setNationality(Object nationality) {
+        this.nationality = nationality;
+    }
+
+    public Object getFrontCarPhoto() {
+        return frontCarPhoto;
+    }
+
+    public void setFrontCarPhoto(Object frontCarPhoto) {
+        this.frontCarPhoto = frontCarPhoto;
+    }
+
+    public Object getBackCarPhoto() {
+        return backCarPhoto;
+    }
+
+    public void setBackCarPhoto(Object backCarPhoto) {
+        this.backCarPhoto = backCarPhoto;
+    }
+
+    public Object getIdCardPhoto() {
+        return idCardPhoto;
+    }
+
+    public void setIdCardPhoto(Object idCardPhoto) {
+        this.idCardPhoto = idCardPhoto;
+    }
+
+    public Object getDriverLicensePhoto() {
+        return driverLicensePhoto;
+    }
+
+    public void setDriverLicensePhoto(Object driverLicensePhoto) {
+        this.driverLicensePhoto = driverLicensePhoto;
+    }
+
+    public Object getCarRegistrationPhoto() {
+        return carRegistrationPhoto;
+    }
+
+    public void setCarRegistrationPhoto(Object carRegistrationPhoto) {
+        this.carRegistrationPhoto = carRegistrationPhoto;
     }
 
 }

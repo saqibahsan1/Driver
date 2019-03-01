@@ -133,21 +133,20 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                             switch (status.toString()) {
                                 case "0":
                                 try {
-
-                                        buttonStatus.setBackgroundColor(getActivity().getResources().getColor(R.color.Red));
+                                    buttonStatus.setBackground(getContext().getResources().getDrawable(R.color.Red));
                                         buttonStatus.setText(R.string.Bz);
                                         titleBar.setText(R.string.available);
-                                        statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.green_dot));
+                                        statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.green_dot));
                                         startTrackerService();
                                         break;
                                 } catch (Resources.NotFoundException e) {
                                     e.printStackTrace();
                                 }
                                 case "1":
-                                    buttonStatus.setBackgroundColor(getActivity().getResources().getColor(R.color.green));
+                                    buttonStatus.setBackgroundColor(getContext().getResources().getColor(R.color.green));
                                     buttonStatus.setText(R.string.online);
                                     titleBar.setText(R.string.busy);
-                                    statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.reddot_dash));
+                                    statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.reddot_dash));
                                     OrderManager.getInstance().stopObservingOrder();
                                     break;
                                 case "2":
@@ -156,7 +155,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                                 case "3":
                                     buttonStatus.setVisibility(View.INVISIBLE);
                                     titleBar.setText(R.string.blocked);
-                                    statusColorImg.setBackground(getActivity().getResources().getDrawable(R.drawable.reddot_dash));
+                                    statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.reddot_dash));
                                     OrderManager.getInstance().stopObservingOrder();
                                     break;
                                 default:

@@ -16,8 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akhdmny.driver.Adapter.TransactionAdapter;
-import com.akhdmny.driver.ApiResponse.TransactionPojo.Transaction;
-import com.akhdmny.driver.ApiResponse.TransactionPojo.TransactionModel;
+import com.akhdmny.driver.ApiResponse.TransactionPojo.DriverRewards;
+import com.akhdmny.driver.ApiResponse.TransactionPojo.Reward;
 import com.akhdmny.driver.MainActivity;
 import com.akhdmny.driver.NetworkManager.NetworkConsume;
 import com.akhdmny.driver.R;
@@ -42,7 +42,7 @@ public class TransactionFragment extends Fragment {
 
     TransactionAdapter transactionAdapter;
     SharedPreferences prefs;
-    ArrayList<Transaction> transactionArrayList;
+    ArrayList<Reward> transactionArrayList;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -63,19 +63,25 @@ public class TransactionFragment extends Fragment {
     private void transactionApi(){
         NetworkConsume.getInstance().ShowProgress(getActivity());
         NetworkConsume.getInstance().setAccessKey(prefs.getString("access_token","12"));
-        NetworkConsume.getInstance().getAuthAPI().Transactions().enqueue(new Callback<TransactionModel>() {
+        NetworkConsume.getInstance().getAuthAPI().Transactions().enqueue(new Callback<DriverRewards>() {
             @Override
-            public void onResponse(Call<TransactionModel> call, Response<TransactionModel> response) {
+            public void onResponse(Call<DriverRewards> call, Response<DriverRewards> response) {
                 if (response.isSuccessful()){
                     NetworkConsume.getInstance().HideProgress();
-                    TransactionModel model = response.body();
-                    if (model.getResponse().getTransactions().size() >0){
-//                        totalAmountTv.setText(model.getResponse().getTransactio);
-                        transactionArrayList.addAll(model.getResponse().getTransactions());
-                        transactionAdapter.notifyDataSetChanged();
-                    }else {
-                        NetworkConsume.getInstance().HideProgress();
-                        Toast.makeText(getActivity(), "No Transactions found!!", Toast.LENGTH_SHORT).show();
+                    DriverRewards model = response.body();
+                    double sum = 0;
+                    if (model != null) {
+                        if (model.getResponse().getRewards().size() >0){
+                            transactionArrayList.addAll(model.getResponse().getRewards());
+                            transactionAdapter.notifyDataSetChanged();
+                            for (int i=0; i<model.getResponse().getRewards().size();i++) {
+                                    sum += model.getResponse().getRewards().get(i).getAmount();
+                            }
+                            totalAmountTv.setText(String.valueOf(sum));
+                        }else {
+                            NetworkConsume.getInstance().HideProgress();
+                            Toast.makeText(getActivity(), "No Transactions found!!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }else {
                     NetworkConsume.getInstance().HideProgress();
@@ -85,10 +91,11 @@ public class TransactionFragment extends Fragment {
 
 
             @Override
-            public void onFailure(Call<TransactionModel> call, Throwable t) {
+            public void onFailure(Call<DriverRewards> call, Throwable t) {
                 NetworkConsume.getInstance().HideProgress();
                 Toast.makeText(getActivity(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 }

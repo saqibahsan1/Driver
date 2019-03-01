@@ -4,7 +4,7 @@ package com.akhdmny.driver.ApiResponse.TransactionPojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Transaction {
+public class Reward {
 
     @SerializedName("id")
     @Expose
@@ -12,9 +12,18 @@ public class Transaction {
     @SerializedName("driver_id")
     @Expose
     private Integer driverId;
-    @SerializedName("transaction_amount")
+    @SerializedName("order_id")
     @Expose
-    private Integer transactionAmount;
+    private Integer orderId;
+    @SerializedName("reward_id")
+    @Expose
+    private Integer rewardId;
+    @SerializedName("title")
+    @Expose
+    private String title;
+    @SerializedName("amount")
+    @Expose
+    private Double amount;
     @SerializedName("created_at")
     @Expose
     private String createdAt;
@@ -24,6 +33,12 @@ public class Transaction {
     @SerializedName("driver")
     @Expose
     private Driver driver;
+    @SerializedName("order")
+    @Expose
+    private Order order;
+    @SerializedName("reward")
+    @Expose
+    private Reward_ reward;
 
     public Integer getId() {
         return id;
@@ -41,12 +56,36 @@ public class Transaction {
         this.driverId = driverId;
     }
 
-    public Integer getTransactionAmount() {
-        return transactionAmount;
+    public Integer getOrderId() {
+        return orderId;
     }
 
-    public void setTransactionAmount(Integer transactionAmount) {
-        this.transactionAmount = transactionAmount;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+    public Integer getRewardId() {
+        return rewardId;
+    }
+
+    public void setRewardId(Integer rewardId) {
+        this.rewardId = rewardId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 
     public String getCreatedAt() {
@@ -71,6 +110,22 @@ public class Transaction {
 
     public void setDriver(Driver driver) {
         this.driver = driver;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public Reward_ getReward() {
+        return reward;
+    }
+
+    public void setReward(Reward_ reward) {
+        this.reward = reward;
     }
 
 }

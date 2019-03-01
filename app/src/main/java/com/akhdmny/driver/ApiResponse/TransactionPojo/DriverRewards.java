@@ -4,7 +4,7 @@ package com.akhdmny.driver.ApiResponse.TransactionPojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TransactionModel {
+public class DriverRewards {
 
     @SerializedName("status")
     @Expose

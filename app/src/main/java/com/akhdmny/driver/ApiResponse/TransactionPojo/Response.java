@@ -7,19 +7,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class Response {
 
-    @SerializedName("transactions")
+    @SerializedName("rewards")
     @Expose
-    private List<Transaction> transactions = null;
+    private List<Reward> rewards = null;
     @SerializedName("currency")
     @Expose
     private String currency;
 
-    public List<Transaction> getTransactions() {
-        return transactions;
+    public List<Reward> getRewards() {
+        return rewards;
     }
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
+    public void setRewards(List<Reward> rewards) {
+        this.rewards = rewards;
     }
 
     public String getCurrency() {

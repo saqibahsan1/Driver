@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.akhdmny.driver.ApiResponse.TransactionPojo.Transaction;
+import com.akhdmny.driver.ApiResponse.TransactionPojo.Reward;
 import com.akhdmny.driver.R;
 
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<Transaction> orderArrayList;
-    public TransactionAdapter(Context context, ArrayList<Transaction> arrayList){
+    private ArrayList<Reward> orderArrayList;
+    public TransactionAdapter(Context context, ArrayList<Reward> arrayList){
             this.context = context;
             this.orderArrayList = arrayList;
     }
@@ -35,10 +35,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Transaction transaction = orderArrayList.get(position);
+          Reward transaction = orderArrayList.get(position);
             holder.TxtViewDate.setText(transaction.getCreatedAt());
-            holder.textViewDetails.setText(transaction.getDriver().getName());
-            holder.TvAmount.setText(String.valueOf(transaction.getTransactionAmount()));
+            holder.textViewDetails.setText(transaction.getTitle());
+            holder.TvAmount.setText(String.valueOf(transaction.getAmount()));
         if(position %2 == 0)
         {
             holder.transaction_layout.setBackgroundColor(context.getResources().getColor(R.color.cardBg));

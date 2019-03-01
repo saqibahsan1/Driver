@@ -551,7 +551,12 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                         btnRemove.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                              getToken();
+                                try {
+                                    getToken();
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
                                 alertDialog.dismiss();
                             }
                         });
