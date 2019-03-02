@@ -290,12 +290,22 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
                         recyclerViewPopup.setLayoutManager(new LinearLayoutManager(DriverOrders.this, LinearLayoutManager.HORIZONTAL, false));
                         recyclerViewPopup.setHasFixedSize(true);
 //                        for (int i =0; i<list.get(position).getImage().size()-1;i++) {
-                        photos.add(list.get(position).getImage());
+                        if (list.get(position).getImage()!= null){
+                            // for (int i =0; i<list.get(position).getImage().size()-1;i++) {
+                            photos.add(list.get(position).getImage());
+                            //}
+                            ImageAdapterCart imagesAdapter = new ImageAdapterCart(DriverOrders.this, photos);
+                            recyclerViewPopup.setAdapter(imagesAdapter);
+                        }else {
+                            recyclerViewPopup.setVisibility(View.GONE);
+                        }
 
                         //}
-                        ImageAdapterCart imagesAdapter = new ImageAdapterCart(DriverOrders.this, photos);
 
-                        recyclerViewPopup.setAdapter(imagesAdapter);
+                        if (list.get(position).getVoice() == null){
+                            PlayAudio.setVisibility(View.GONE);
+                        }
+
                         Picasso.get().load(list.get(position).getImage()).error(R.drawable.place_holder).into(imageView);
                         PlayAudio.setOnClickListener(new View.OnClickListener() {
                             @Override

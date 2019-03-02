@@ -522,12 +522,12 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                             recyclerViewPopup.setVisibility(View.GONE);
                         }
 //
-
-
-                        Picasso.get().load(list.get(position).getImage()).error(R.drawable.place_holder).into(imageView);
                         if (list.get(position).getVoice() == null){
                             PlayAudio.setVisibility(View.GONE);
                         }
+
+
+                        Picasso.get().load(list.get(position).getImage()).error(R.drawable.place_holder).into(imageView);
                         PlayAudio.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
