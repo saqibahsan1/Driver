@@ -613,7 +613,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
             public void onResponse(Call<UpdateFbmodel> call, Response<UpdateFbmodel> response) {
                 if (response.isSuccessful()){
                     Toast.makeText(AcceptOrderActivity.this, "Order has been done!!", Toast.LENGTH_SHORT).show();
-                    NetworkConsume.getInstance().ShowProgress(AcceptOrderActivity.this);
+                    NetworkConsume.getInstance().HideProgress();
                 }
                 else {
                     Toast.makeText(AcceptOrderActivity.this, "Something went wrong!!", Toast.LENGTH_SHORT).show();
