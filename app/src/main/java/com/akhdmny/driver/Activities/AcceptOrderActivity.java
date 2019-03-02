@@ -512,14 +512,22 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                         RecyclerView recyclerViewPopup = viewCart.findViewById(R.id.recycler_view);
                         recyclerViewPopup.setLayoutManager(new LinearLayoutManager(AcceptOrderActivity.this, LinearLayoutManager.HORIZONTAL, false));
                         recyclerViewPopup.setHasFixedSize(true);
-//                        for (int i =0; i<list.get(position).getImage().size()-1;i++) {
-                            photos.add(list.get(position).getImage());
+                        if (list.get(position).getImage()!= null){
+                           // for (int i =0; i<list.get(position).getImage().size()-1;i++) {
+                                photos.add(list.get(position).getImage());
+                                //}
+                                ImageAdapterCart imagesAdapter = new ImageAdapterCart(AcceptOrderActivity.this, photos);
+                            recyclerViewPopup.setAdapter(imagesAdapter);
+                        }else {
+                            recyclerViewPopup.setVisibility(View.GONE);
+                        }
+//
 
-                        //}
-                        ImageAdapterCart imagesAdapter = new ImageAdapterCart(AcceptOrderActivity.this, photos);
 
-                        recyclerViewPopup.setAdapter(imagesAdapter);
                         Picasso.get().load(list.get(position).getImage()).error(R.drawable.place_holder).into(imageView);
+                        if (list.get(position).getVoice() == null){
+                            PlayAudio.setVisibility(View.GONE);
+                        }
                         PlayAudio.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -569,6 +577,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                 }));
     }
     private void getToken(){
+
         String orderId = NetworkConsume.getInstance().getDefaults("orderId", AcceptOrderActivity.this);
         String id = String.valueOf(prefs.getInt("id",1));
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token").child(id).child("token");
@@ -598,17 +607,24 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
         });
     }
     private void UpdateFBApi(String token,String orderId){
+        NetworkConsume.getInstance().ShowProgress(AcceptOrderActivity.this);
         Network.getInstance().getAuthAPINew().updateFirebase(token,orderId,"Item purchased","has been purchased by your driver").enqueue(new Callback<UpdateFbmodel>() {
             @Override
             public void onResponse(Call<UpdateFbmodel> call, Response<UpdateFbmodel> response) {
                 if (response.isSuccessful()){
                     Toast.makeText(AcceptOrderActivity.this, "Order has been done!!", Toast.LENGTH_SHORT).show();
+                    NetworkConsume.getInstance().ShowProgress(AcceptOrderActivity.this);
+                }
+                else {
+                    Toast.makeText(AcceptOrderActivity.this, "Something went wrong!!", Toast.LENGTH_SHORT).show();
+                    NetworkConsume.getInstance().HideProgress();
                 }
             }
 
             @Override
             public void onFailure(Call<UpdateFbmodel> call, Throwable t) {
-
+                Toast.makeText(AcceptOrderActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                NetworkConsume.getInstance().HideProgress();
             }
         });
     }

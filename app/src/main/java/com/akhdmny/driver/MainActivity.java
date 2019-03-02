@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
        toggle.syncState();
-        clickLIstner();
+//        clickLIstner();
 
     }
 
@@ -289,18 +289,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ref.child("token").setValue(token);
     }
 
-    private void clickLIstner(){
-        MLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activeMenu == R.id.home) {
-                   fragmentHome.getCurrentLocation();
-                }else {
-                    Log.i("Hide","true");
-                }
-            }
-        });
-    }
+//    private void clickLIstner(){
+//        MLocation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (activeMenu == R.id.home) {
+//                   fragmentHome.getCurrentLocation();
+//                }else {
+//                    Log.i("Hide","true");
+//                }
+//            }
+//        });
+//    }
 
 
     private void switchFragment(int activeMenu) {

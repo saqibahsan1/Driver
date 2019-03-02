@@ -108,7 +108,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     SharedPreferences preferences;
     String id;
     DatabaseReference myRef;
-
+    android.content.res.Resources res;
     public FragmentHome() {
 
     }
@@ -123,56 +123,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         preferences = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         id = String.valueOf(preferences.getInt("id", 0));
         myRef = FirebaseDatabase.getInstance().getReference().child("Token").child(id).child("status");
-
-            myRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Object status = dataSnapshot.getValue();
-                    try {
-                        if (status != null) {
-                            switch (status.toString()) {
-                                case "0":
-                                try {
-                                    buttonStatus.setBackground(getContext().getResources().getDrawable(R.color.Red));
-                                        buttonStatus.setText(R.string.Bz);
-                                        titleBar.setText(R.string.available);
-                                        statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.green_dot));
-                                        startTrackerService();
-                                        break;
-                                } catch (Resources.NotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                                case "1":
-                                    buttonStatus.setBackgroundColor(getContext().getResources().getColor(R.color.green));
-                                    buttonStatus.setText(R.string.online);
-                                    titleBar.setText(R.string.busy);
-                                    statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.reddot_dash));
-                                    OrderManager.getInstance().stopObservingOrder();
-                                    break;
-                                case "2":
-                                    startTrackerService();
-                                    break;
-                                case "3":
-                                    buttonStatus.setVisibility(View.INVISIBLE);
-                                    titleBar.setText(R.string.blocked);
-                                    statusColorImg.setBackground(getContext().getResources().getDrawable(R.drawable.reddot_dash));
-                                    OrderManager.getInstance().stopObservingOrder();
-                                    break;
-                                default:
-
-                                    break;
-                            }
-                        }
-                    } catch (Resources.NotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+        res = getResources();
 
 //        myRef.addChildEventListener(new ChildEventListener() {
 //            @Override
@@ -245,6 +196,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
         mMapView = (MapView) view.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
+        mMapView.getMapAsync(this);
         buttonStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,7 +219,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
             }
         });
         mMapView.getMapAsync(this);
-//        mMapView.onResume();
+         mMapView.onResume();
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
@@ -280,8 +232,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                 .build();
 //
         mLocationRequest = new LocationRequest();
-//        mLocationRequest.setNumUpdates(1);
-//        mLocationRequest.setExpirationTime(6000);
         mLocationRequest.setInterval(INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -295,7 +245,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_CODE);
         }
-
+        changeListner();
         return view;
     }
 
@@ -372,6 +322,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
                         if (checkPermission())
                             buildGoogleApiClient();
+                        getCurrentLocation();
                         mMap.setMyLocationEnabled(true);
 
 
@@ -442,12 +393,73 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        getCurrentLocation();
+        Location location = null;
+        if (checkPermission()) {
+            location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        }
+        if (location != null) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+            getCurrentLocation();
+        }
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+
+    }
+
+    private void changeListner(){
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Object status = dataSnapshot.getValue();
+                try {
+                    if (status != null) {
+                        switch (status.toString()) {
+                            case "0":
+                                try {
+                                    buttonStatus.setBackgroundColor(res.getColor(R.color.Red));
+                                    buttonStatus.setText(R.string.Bz);
+                                    titleBar.setText(R.string.available);
+                                    statusColorImg.setBackground(res.getDrawable(R.drawable.green_dot));
+                                    startTrackerService();
+                                    break;
+                                } catch (Resources.NotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            case "1":
+                                buttonStatus.setBackgroundColor(res.getColor(R.color.green));
+                                buttonStatus.setText(R.string.online);
+                                titleBar.setText(R.string.busy);
+                                statusColorImg.setBackground(res.getDrawable(R.drawable.reddot_dash));
+                                OrderManager.getInstance().stopObservingOrder();
+                                break;
+                            case "2":
+                                startTrackerService();
+                                break;
+                            case "3":
+                                buttonStatus.setVisibility(View.INVISIBLE);
+                                titleBar.setText(R.string.blocked);
+                                statusColorImg.setBackground(res.getDrawable(R.drawable.reddot_dash));
+                                OrderManager.getInstance().stopObservingOrder();
+                                break;
+                            default:
+
+                                break;
+                        }
+                    }
+                } catch (Resources.NotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -459,7 +471,12 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         mMap.setOnMarkerDragListener(this);
         //Adding a long click listener to the map
         mMap.setOnMapLongClickListener(this);
-
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        getCurrentLocation();
+        mMap.setMyLocationEnabled(true);
         if (checkPermission()) {
             buildGoogleApiClient();
             if (Build.VERSION.SDK_INT < 23) {
@@ -499,11 +516,6 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        myContext = (FragmentActivity) activity;
-        super.onAttach(activity);
-    }
 
     @Override
     public void onResume() {
@@ -559,7 +571,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-        moveMap();
+        getCurrentLocation();
 
     }
 
