@@ -2,6 +2,7 @@ package com.akhdmny.driver.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -109,6 +110,8 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     String id;
     DatabaseReference myRef;
     android.content.res.Resources res;
+    TrackerService service;
+    Intent LocationIntent;
     public FragmentHome() {
 
     }
@@ -122,6 +125,8 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         ButterKnife.bind(this, view);
         preferences = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         id = String.valueOf(preferences.getInt("id", 0));
+        service = new TrackerService();
+        LocationIntent = new Intent(getContext(), TrackerService.class);
         myRef = FirebaseDatabase.getInstance().getReference().child("Token").child(id).child("status");
         res = getResources();
 
@@ -249,6 +254,18 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         return view;
     }
 
+    private boolean isMyLocationServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.i ("isMyServiceRunning?", false+"");
+        return false;
+    }
+
     private void UpdateToken(int id, Integer status) {
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(getActivity(), instanceIdResult -> {
             String newToken = instanceIdResult.getToken();
@@ -269,9 +286,19 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 //    }
 
     private void startTrackerService() {
+        try {
+
         if (!OrderManager.getInstance().isObserverRunning()){
-            Intent intent = new Intent(getActivity(), TrackerService.class);
-            Objects.requireNonNull(getActivity()).startService(intent);
+        if (!isMyLocationServiceRunning(TrackerService.class));
+        getActivity().startService(LocationIntent);
+
+//            Intent intent = new Intent(getActivity(), TrackerService.class);
+//            Objects.requireNonNull(getActivity()).startService(intent);
+        }
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
