@@ -39,21 +39,26 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -112,6 +117,8 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     android.content.res.Resources res;
     TrackerService service;
     Intent LocationIntent;
+    Location location;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
     public FragmentHome() {
 
     }
@@ -123,12 +130,15 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
+        mFusedLocationProviderClient = LocationServices
+                .getFusedLocationProviderClient(getActivity());
         preferences = getActivity().getSharedPreferences(MainActivity.AUTH_PREF_KEY, Context.MODE_PRIVATE);
         id = String.valueOf(preferences.getInt("id", 0));
         service = new TrackerService();
         LocationIntent = new Intent(getContext(), TrackerService.class);
         myRef = FirebaseDatabase.getInstance().getReference().child("Token").child(id).child("status");
         res = getResources();
+
 
 //        myRef.addChildEventListener(new ChildEventListener() {
 //            @Override
@@ -242,15 +252,13 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 //
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_CODE);
+           requestPermission();
         } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_CODE);
+           requestPermission();
         }
+
         changeListner();
+
         return view;
     }
 
@@ -420,15 +428,7 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Location location = null;
-        if (checkPermission()) {
-            location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        }
-        if (location != null) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-            getCurrentLocation();
-        }
+              getCurrentLocation();
 
     }
 
@@ -496,6 +496,8 @@ public class FragmentHome extends Fragment implements OnMapReadyCallback,
         // For showing a move to my location button
         //Setting onMarkerDragListener to track the marker drag
         mMap.setOnMarkerDragListener(this);
+
+
         //Adding a long click listener to the map
         mMap.setOnMapLongClickListener(this);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
