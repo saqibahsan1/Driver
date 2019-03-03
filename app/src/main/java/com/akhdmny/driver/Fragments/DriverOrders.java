@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -41,6 +42,7 @@ import com.akhdmny.driver.Activities.AcceptOrderActivity;
 import com.akhdmny.driver.Activities.CategoryDetailActivity;
 import com.akhdmny.driver.Activities.Chat;
 import com.akhdmny.driver.Activities.MessageListActivity;
+import com.akhdmny.driver.Adapter.BottomSheetAdapter;
 import com.akhdmny.driver.Adapter.DriverDetailedAdapter;
 import com.akhdmny.driver.Adapter.ImageAdapterCart;
 import com.akhdmny.driver.ApiResponse.AcceptModel.Order;
@@ -48,6 +50,7 @@ import com.akhdmny.driver.ApiResponse.AcceptModel.User;
 import com.akhdmny.driver.ApiResponse.CartInsideResponse;
 import com.akhdmny.driver.ApiResponse.DeliverOrderPkg.DeliverOrderApi;
 import com.akhdmny.driver.ApiResponse.MyOrderDetails.OrderDetail;
+import com.akhdmny.driver.ApiResponse.TimeOut.OrderTimeOut;
 import com.akhdmny.driver.ApiResponse.UpdateFbmodel;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.CartItem;
 import com.akhdmny.driver.ApiResponse.UserAcceptedResponse.DriverAwardedResp;
@@ -257,7 +260,17 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         CancelOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CancelOrderApi();
+                CancelFragment cancelFragment = new CancelFragment(new BottomSheetAdapter.DetectReasonSelected() {
+                    @Override
+                    public void onSelection(String reason) {
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                                child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+                        ref.child("status").setValue(6);
+                        CancelOrder(reason);
+                    }
+                });
+                FragmentManager fm =getSupportFragmentManager();
+                cancelFragment.show(fm,cancelFragment.getTag());
             }
         });
 
@@ -482,50 +495,37 @@ public class DriverOrders extends AppCompatActivity implements OnMapReadyCallbac
         //finish();
     }
 
-    private void CancelOrderApi() {
-        OrderDetail order = CurrentOrder.getInstance().order;
-        if (order != null) {
-            int orderID = CurrentOrder.getInstance().orderId;
-            NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
-            NetworkConsume.getInstance().setAccessKey("Bearer " + prefs.getString("access_token", "12"));
-            NetworkConsume.getInstance().getAuthAPI().CancelOrderApi(orderID).enqueue(new Callback<CancelOrderResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<CancelOrderResponse> call, @NonNull Response<CancelOrderResponse> response) {
-                    if (response.isSuccessful()) {
-                        CancelOrderResponse cancelOrderResponse = response.body();
-                        NetworkConsume.getInstance().HideProgress();
-                        try {
-                            if (cancelOrderResponse != null) {
-                                if (cancelOrderResponse.getStatus()) {
-                                    CurrentOrder.shared = null;
-                                    Intent start = new Intent(DriverOrders.this, MainActivity.class);
-                                    start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(start);
-                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
-                                            child("Driver").child(String.valueOf(prefs.getInt("id", 1)));
-                                    ref.child("status").setValue(6);
-                                    finish();
-                                }
-                            }
-                        } catch (Exception e) {
-                            NetworkConsume.getInstance().HideProgress();
-                        }
+    private void CancelOrder(String reason) {
+        NetworkConsume.getInstance().ShowProgress(DriverOrders.this);
 
-                    } else {
-                        NetworkConsume.getInstance().HideProgress();
-                        Gson gson = new Gson();
-                        LoginApiError message = gson.fromJson(response.errorBody().charStream(), LoginApiError.class);
-                        Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<CancelOrderResponse> call, Throwable t) {
-                    Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+        NetworkConsume.getInstance().setAccessKey("Bearer " + prefs.getString("access_token", "12"));
+        String orderId = NetworkConsume.getInstance().getDefaults("orderId", DriverOrders.this);
+        NetworkConsume.getInstance().getAuthAPI().cancelOrderApi(orderId,reason).enqueue(new Callback<OrderTimeOut>() {
+            @Override
+            public void onResponse(Call<OrderTimeOut> call, Response<OrderTimeOut> response) {
+                if (response.isSuccessful()) {
+                    OrderTimeOut timeOut = response.body();
+                    Toast.makeText(DriverOrders.this, "Order has been cancelled!!", Toast.LENGTH_SHORT).show();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                            child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+                    ref.child("status").setValue(6);
+                    startActivity(new Intent(DriverOrders.this,MainActivity.class));
+                    finish();
                     NetworkConsume.getInstance().HideProgress();
+                } else {
+                    NetworkConsume.getInstance().HideProgress();
+                    Gson gson = new Gson();
+                    LoginApiError message = gson.fromJson(response.errorBody().charStream(), LoginApiError.class);
+                    Toast.makeText(DriverOrders.this, message.getError().getMessage().get(0), Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(Call<OrderTimeOut> call, Throwable t) {
+                Toast.makeText(DriverOrders.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                NetworkConsume.getInstance().HideProgress();
+            }
+        });
     }
 
     private void deliverApi() {

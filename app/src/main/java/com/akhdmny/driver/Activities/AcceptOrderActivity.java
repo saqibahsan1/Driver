@@ -172,15 +172,10 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
         });
 
         CancelOrder.setOnClickListener(v -> {
-            CancelFragment cancelFragment = new CancelFragment(new BottomSheetAdapter.DetectReasonSelected() {
-                @Override
-                public void onSelection(String reason) {
-                    CancelOrder(reason);
-                }
-            });
-            FragmentManager fm =getSupportFragmentManager();
-            cancelFragment.show(fm,cancelFragment.getTag());
-//            finish();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
+                    child("Driver").child(String.valueOf(prefs.getInt("id",1)));
+            ref.child("status").setValue(6);
+            finish();
         });
 
         mMapView.getMapAsync(this);
@@ -233,11 +228,11 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                         for (int i = 0; i<getOrderItemsResp.getResponse().getOrderDetails().getCartItems().size(); i++){
                             if (getOrderItemsResp.getResponse().getOrderDetails().getCartItems().size() != 0)
                             {
-                                if (getOrderItemsResp.getResponse().getOrderDetails().getIsBid() ==1){
+                                if (getOrderItemsResp.getResponse().getOrderDetails().getIsBid() == 1){
+                                    et_bid.setVisibility(View.VISIBLE);
+                                }else {
                                     et_bid.setVisibility(View.GONE);
                                     CurrentOrder.getInstance().finalAmount = Integer.parseInt(new DecimalFormat("##").format(getOrderItemsResp.getResponse().getOrderDetails().getAmount()));
-                                }else {
-                                    et_bid.setVisibility(View.VISIBLE);
                                 }
                                 list.add(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i));
                                 createMarker(getOrderItemsResp.getResponse().getOrderDetails().getCartItems().get(i).getLat(),
@@ -297,9 +292,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                     OrderTimeOut timeOut = response.body();
                     NetworkConsume.getInstance()
                             .SnackBarSucccess(OrderBidScreen,AcceptOrderActivity.this,R.string.order_cancel);
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("CurrentOrder").
-                            child("Driver").child(String.valueOf(prefs.getInt("id",1)));
-                    ref.child("status").setValue(6);
+
                     startActivity(new Intent(AcceptOrderActivity.this,MainActivity.class));
                     finish();
                     NetworkConsume.getInstance().HideProgress();
@@ -578,9 +571,9 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
     }
     private void getToken(){
 
-        String orderId = NetworkConsume.getInstance().getDefaults("orderId", AcceptOrderActivity.this);
-        String id = String.valueOf(prefs.getInt("id",1));
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token").child(id).child("token");
+        int userId = CurrentOrder.getInstance().userId;
+//        String id = NetworkConsume.getInstance().getDefaults("id", DriverOrders.this);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token").child(""+ userId).child("token");
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -588,7 +581,7 @@ public class AcceptOrderActivity extends AppCompatActivity implements MediaPlaye
                     if (dataSnapshot.getValue() != null) {
                         try {
                             Log.e("TAG", "" + dataSnapshot.getValue());
-                            UpdateFBApi(""+dataSnapshot.getValue(),orderId);
+                            UpdateFBApi(""+dataSnapshot.getValue(),""+userId);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
