@@ -119,6 +119,9 @@
             android:value="com.akhdmny.driver.MainActivity" />
         </activity>
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="47b19d7fc559d262b3ebd1f37a92d2681f0e0695" />
     </application>
 
 </manifest>
